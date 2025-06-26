@@ -209,7 +209,7 @@ function 转换IPv4到NAT64(IPv4地址) {
     const 数字 = parseInt(段, 10);
     return 数字.toString(16).padStart(2, "0");
   });
-  return `[2001:67c:2960:6464::${十六进制段[0]}${十六进制段[1]}:${十六进制段[2]}${十六进制段[3]}]`;
+  return `[${NAT64前缀}${十六进制段[0]}${十六进制段[1]}:${十六进制段[2]}${十六进制段[3]}]`;
 }
 
 function 验证VL的密钥(arr, offset = 0) {
