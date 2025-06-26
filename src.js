@@ -188,28 +188,18 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
   建立传输管道(WS接口, TCP接口, 写入初始数据);
 }
 
-// 获取域名的IPv4地址并转换为NAT64 IPv6地址
-async function 解析域名到IPv4(域名) {
-  const DNS查询 = await fetch(`https://cloudflare-dns.com/dns-query?name=${域名}&type=A`, {
-    headers: {
-      "Accept": "application/dns-json"
-    }
-  });
-
-  const DNS结果 = await DNS查询.json();
-  const A记录 = DNS结果.Answer.find(记录 => 记录.type === 1);
-  const IPv4地址 = A记录.data;
-  return 转换IPv4到NAT64(IPv4地址);
+// 将IPv4地址转换为NAT64 IPv6地址
+function 转换IPv4到NAT64(ipv4地址) {
+  const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
+  return `[${NAT64前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
 }
 
-// 将IPv4地址转换为NAT64 IPv6地址
-function 转换IPv4到NAT64(IPv4地址) {
-  const 地址段 = IPv4地址.split(".");
-  const 十六进制段 = 地址段.map(段 => {
-    const 数字 = parseInt(段, 10);
-    return 数字.toString(16).padStart(2, "0");
-  });
-  return `[${NAT64前缀}${十六进制段[0]}${十六进制段[1]}:${十六进制段[2]}${十六进制段[3]}]`;
+// 解析域名到IPv4地址
+async function 解析域名到IPv4(域名) {
+  const { Answer } = await (await fetch(`https://${DOH地址}/dns-query?name=${域名}&type=A`, {
+    headers: { "Accept": "application/dns-json" }
+  })).json();
+  return Answer.find(({ type }) => type === 1).data;
 }
 
 function 验证VL的密钥(arr, offset = 0) {
