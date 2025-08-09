@@ -33,10 +33,8 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    // 只允许 /订阅路径/ 开头的路径反代
-    const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
+    const 反代前缀 = `/${encodeURIComponent(订阅路径)}/http`;
     if (url.pathname.startsWith(反代前缀)) {
-      // 取出目标链接
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
       try {
           const 请求对象 = new Request(target + url.search, {
@@ -53,16 +51,7 @@ export default {
 
     if (不是WS请求) {
       if (url.pathname == `/${encodeURIComponent(订阅路径)}`) {
-        const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
-        const 配置生成器 = {
-          v2ray: v2ray配置文件,
-          clash: clash配置文件,
-          tips: 提示界面,
-        };
-        const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
-        优选列表 = await 获取优选列表();
-        const 生成配置 = 配置生成器[工具 || "tips"];
-        return 生成配置(访问请求.headers.get("Host"));
+        return 提示界面
       } else {
           return new Response(null, { status: 404 });
       }
