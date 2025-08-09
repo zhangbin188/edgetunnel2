@@ -2,23 +2,19 @@ import { connect } from "cloudflare:sockets";
 
 // 配置区块
 let 订阅路径 = "订阅路径";
-
 let 验证UUID;
-
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
-
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
-
 let 反代IP = "proxyip.cmliussss.net";
-
 let NAT64前缀 = "2001:67c:2960:6464::";
 let DOH地址 = "1.1.1.1";
 
 // 网页入口
 export default {
   async fetch(访问请求, env) {
+    // 初始化配置
     订阅路径 = env.SUB_PATH ?? 订阅路径;
     验证UUID = 生成UUID();
     优选链接 = env.TXT_URL ?? 优选链接;
@@ -33,7 +29,12 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    const 反代前缀 = `/${encodeURIComponent(订阅路径)}/http`;
+    const 编码后的订阅路径 = encodeURIComponent(订阅路径);
+    const 反代前缀 = `/${编码后的订阅路径}/http`;
+
+    优选列表 = await 获取优选列表();
+
+    // 处理HTTP反代请求
     if (url.pathname.startsWith(反代前缀)) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
       try {
@@ -50,13 +51,26 @@ export default {
     }
 
     if (不是WS请求) {
-      if (url.pathname == `/${encodeURIComponent(订阅路径)}`) {
-        return 提示界面
-      } else {
+      const hostName = url.hostname;
+
+      if (url.pathname === `/${编码后的订阅路径}/v2ray`) {
+        return v2ray配置文件(hostName);
+      }
+
+      else if (url.pathname === `/${编码后的订阅路径}/clash`) {
+        return clash配置文件(hostName);
+      }
+
+      else if (url.pathname === `/${编码后的订阅路径}`) {
+        return 提示界面();
+      }
+
+      else {
           return new Response(null, { status: 404 });
       }
     }
 
+    // 处理WebSocket请求
     if (WS请求) {
       return await 升级WS请求(访问请求);
     }
@@ -357,9 +371,26 @@ async function 提示界面() {
   body {
     font-size: 25px;
     text-align: center;
+    margin-top: 50px;
+  }
+  .links {
+    margin-top: 30px;
+  }
+  a {
+    display: block;
+    margin: 10px 0;
+    color: #0066cc;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
   }
 </style>
-<strong>请把链接导入 Clash 或 V2Ray</strong>
+<strong>请把以下链接导入 Clash 或 V2Ray</strong>
+<div class="links">
+  <a href="/${encodeURIComponent(订阅路径)}/v2ray">V2Ray 订阅链接</a>
+  <a href="/${encodeURIComponent(订阅路径)}/clash">Clash 订阅链接</a>
+</div>
 `;
 
   return new Response(提示界面, {
@@ -402,7 +433,10 @@ function v2ray配置文件(hostName) {
 
   return new Response(配置内容, {
     status: 200,
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    headers: { 
+      "Content-Type": "text/plain;charset=utf-8",
+      "Content-Disposition": `attachment; filename="${订阅路径}.txt"`
+    },
   });
 }
 
@@ -489,6 +523,9 @@ rules:
 
   return new Response(配置内容, {
     status: 200,
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    headers: { 
+      "Content-Type": "text/plain;charset=utf-8",
+      "Content-Disposition": `attachment; filename="${订阅路径}.yaml"`
+    },
   });
 }
