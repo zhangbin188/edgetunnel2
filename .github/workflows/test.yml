@@ -37,11 +37,11 @@ jobs:
             pip install pandas
             
             # 3. 执行测速
-            ./CloudflareST -cfcolo HKG -sl 5 -n 1000 -dn 5 -o HKG.csv
-            ./CloudflareST -cfcolo HKG -sl 5 -n 1000 -dn 5 -o KHH.csv
-            ./CloudflareST -cfcolo HKG -sl 5 -n 1000 -dn 5 -o SIN.csv
-            ./CloudflareST -cfcolo NRT -sl 5 -n 1000 -dn 5 -o NRT.csv
-            ./CloudflareST -cfcolo SEA -sl 5 -n 1000 -dn 5 -o SEA.csv
+            ./CloudflareST -cfcolo HKG -sl 20 -n 1000 -dn 5 -o HKG.csv
+            ./CloudflareST -cfcolo HKG -sl 20 -n 1000 -dn 5 -o KHH.csv
+            ./CloudflareST -cfcolo HKG -sl 20 -n 1000 -dn 5 -o SIN.csv
+            ./CloudflareST -cfcolo NRT -sl 20 -n 1000 -dn 5 -o NRT.csv
+            ./CloudflareST -cfcolo SEA -sl 20 -n 1000 -dn 5 -o SEA.csv
             rm -f ip.txt
             python csv_to_txt.py
             
