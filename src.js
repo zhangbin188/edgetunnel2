@@ -8,9 +8,18 @@ let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
 
-let IPv6获取链接 = "https://www.cloudflare-cn.com/ips-v6/";
+// 硬编码IPv6地址段,因为无法直接访问CF
+// 来自:  https://www.cloudflare-cn.com/ips-v6
+let IPv6地址段 = [
+    "2400:cb00::/32",
+    "2606:4700::/32",
+    "2803:f800::/32",
+    "2405:b500::/32",
+    "2405:8100::/32",
+    "2a06:98c0::/29",
+    "2c0f:f248::/32"
+];
 let IPv6随机节点数量 = 10;
-let IPv6地址段 = [];
 
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
@@ -383,19 +392,6 @@ async function 提示界面() {
   });
 }
 
-// 获取IPv6地址段
-async function 获取IPv6地址段() {
-    try {
-        const 响应 = await fetch(IPv6获取链接);
-        const 文本 = await 响应.text();
-        // 按行分割并过滤空行
-        IPv6地址段 = 文本.split('\n').filter(line => line.trim() !== '');
-    } catch (错误) {
-        console.error("获取IPv6地址段失败:", 错误);
-        IPv6地址段 = [];
-    }
-}
-
 // 生成随机IPv6地址的函数
 function 生成随机IPv6地址(地址段) {
     // 简单处理CIDR格式，假设为/64前缀的简化处理
@@ -410,12 +406,10 @@ function 生成随机IPv6地址(地址段) {
     return [...前缀部分, ...随机部分].join(':');
 }
 
-// 生成IPv6节点列表的函数
-async function 生成IPv6节点() {
-    if (IPv6地址段.length === 0) {
-        await 获取IPv6地址段();
-    }
+// 生成IPv6节点列表的函数 - 简化，不再需要异步获取地址段
+function 生成IPv6节点() {
     const IPv6节点列表 = [];
+    // 直接使用配置区的硬编码地址段
     for (let i = 0; i < IPv6随机节点数量 && IPv6地址段.length > 0; i++) {
         // 随机选择一个地址段
         const 随机地址段 = IPv6地址段[Math.floor(Math.random() * IPv6地址段.length)];
@@ -441,8 +435,8 @@ async function 处理优选列表(优选列表, hostName) {
   // 先添加原生节点
   const 基础列表 = [`${hostName}#原生节点`, ...优选列表];
   
-  // 生成IPv6节点并添加到列表
-  const IPv6节点 = await 生成IPv6节点();
+  // 生成IPv6节点并添加到列表（现在是同步操作）
+  const IPv6节点 = 生成IPv6节点();
   const 完整列表 = [...基础列表, ...IPv6节点];
   
   // 处理所有节点（包括原有节点和新添加的IPv6节点）
@@ -472,7 +466,6 @@ async function v2ray配置文件(hostName) {
   });
 }
 
-// 在clash配置文件函数中：
 async function clash配置文件(hostName) {
   const 节点列表 = await 处理优选列表(优选列表, hostName);
   const 生成节点 = (节点列表) => {
