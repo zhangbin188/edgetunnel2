@@ -8,6 +8,10 @@ let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
 
+let IPv6获取链接 = "https://www.cloudflare-cn.com/ips-v6/";
+let IPv6随机节点数量 = 10;
+let IPv6地址段 = [];
+
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
 
@@ -377,6 +381,48 @@ async function 提示界面() {
     status: 200,
     headers: { "Content-Type": "text/html;charset=utf-8" },
   });
+}
+
+// 获取IPv6地址段
+async function 获取IPv6地址段() {
+    try {
+        const 响应 = await fetch(IPv6获取链接);
+        const 文本 = await 响应.text();
+        // 按行分割并过滤空行
+        IPv6地址段 = 文本.split('\n').filter(line => line.trim() !== '');
+    } catch (错误) {
+        console.error("获取IPv6地址段失败:", 错误);
+        IPv6地址段 = [];
+    }
+}
+
+// 生成随机IPv6地址的函数
+function 生成随机IPv6地址(地址段) {
+    // 简单处理CIDR格式，假设为/64前缀的简化处理
+    const 前缀 = 地址段.split('/')[0];
+    const 随机部分 = [];
+    // 生成8组16进制数（完整IPv6），这里简化处理已有的前缀部分
+    const 前缀部分 = 前缀.split(':').filter(part => part !== '');
+    for (let i = 前缀部分.length; i < 8; i++) {
+        // 生成随机4位16进制数
+        随机部分.push(Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0'));
+    }
+    return [...前缀部分, ...随机部分].join(':');
+}
+
+// 生成IPv6节点列表的函数
+async function 生成IPv6节点() {
+    if (IPv6地址段.length === 0) {
+        await 获取IPv6地址段();
+    }
+    const IPv6节点列表 = [];
+    for (let i = 0; i < IPv6随机节点数量 && IPv6地址段.length > 0; i++) {
+        // 随机选择一个地址段
+        const 随机地址段 = IPv6地址段[Math.floor(Math.random() * IPv6地址段.length)];
+        const 随机IPv6 = 生成随机IPv6地址(随机地址段);
+        IPv6节点列表.push(`${随机IPv6}#IPv6随机地址 ${i + 1}`);
+    }
+    return IPv6节点列表;
 }
 
 async function 获取优选列表() {
