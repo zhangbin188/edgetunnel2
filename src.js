@@ -34,6 +34,7 @@ export default {
   async fetch(访问请求, env) {
     订阅路径 = env.SUB_PATH ?? 订阅路径;
     验证UUID = 生成UUID();
+    IPv6随机节点数量 = env.RANDOM_V6 ?? IPv6随机节点数量;
     优选链接 = env.TXT_URL ?? 优选链接;
     SOCKS5代理 = env.SOCKS5 ?? SOCKS5代理;
     SOCKS5全局代理 = env.SOCKS5_GLOBAL ?? SOCKS5全局代理;
