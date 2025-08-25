@@ -6,7 +6,7 @@ csv_files = [
     "SIN.csv",
     "NRT.csv",
     "SEA.csv",
-    "V6.csv",
+    "IPV6.csv",
 ]
 
 area_names = [

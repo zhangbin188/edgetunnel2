@@ -44,7 +44,7 @@ jobs:
             ./CloudflareST -f ipv4.txt -cfcolo NRT -sl 20 -n 1000 -dn 5 -o NRT.csv
             ./CloudflareST -f ipv4.txt -cfcolo SEA -sl 20 -n 1000 -dn 5 -o SEA.csv
             rm -f ipv4.txt
-            ./CloudflareST -f ipv6.txt -sl 20 -n 1000 -dn 10 -o V6.csv
+            ./CloudflareST -f ipv6.txt -sl 20 -n 1000 -dn 10 -o IPV6.csv
             rm -f ipv6.txt
             python csv_to_txt.py
             
