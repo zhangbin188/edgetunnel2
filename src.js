@@ -66,7 +66,7 @@ export default {
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
         优选列表 = await 获取优选列表();
         const 生成配置 = 配置生成器[工具 || "tips"];
-        return 生成配置(访问请求.headers.get("Host"));
+        return await 生成配置(访问请求.headers.get("Host"));
       } else {
           return new Response(null, { status: 404 });
       }
@@ -437,20 +437,29 @@ async function 获取优选列表() {
   return [];
 }
 
-function 处理优选列表(优选列表, hostName) {
-  优选列表.unshift(`${hostName}#原生节点`);
-  return 优选列表.map((获取优选, index) => {
+async function 处理优选列表(优选列表, hostName) {
+  // 先添加原生节点
+  const 基础列表 = [`${hostName}#原生节点`, ...优选列表];
+  
+  // 生成IPv6节点并添加到列表
+  const IPv6节点 = await 生成IPv6节点();
+  const 完整列表 = [...基础列表, ...IPv6节点];
+  
+  // 处理所有节点（包括原有节点和新添加的IPv6节点）
+  return 完整列表.map((获取优选, index) => {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
-    const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
+    // 处理IPv6地址中可能包含的冒号
+    const 端口 = 拆分地址端口.length > 1 && !isNaN(拆分地址端口[拆分地址端口.length - 1]) 
+      ? Number(拆分地址端口.pop()) 
+      : 443;
     const 地址 = 拆分地址端口.join(":");
     return { 地址, 端口, 节点名字 };
   });
 }
 
-// 订阅页面
-function v2ray配置文件(hostName) {
-  const 节点列表 = 处理优选列表(优选列表, hostName);
+async function v2ray配置文件(hostName) {
+  const 节点列表 = await 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
       return `vless://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
@@ -463,8 +472,9 @@ function v2ray配置文件(hostName) {
   });
 }
 
-function clash配置文件(hostName) {
-  const 节点列表 = 处理优选列表(优选列表, hostName);
+// 在clash配置文件函数中：
+async function clash配置文件(hostName) {
+  const 节点列表 = await 处理优选列表(优选列表, hostName);
   const 生成节点 = (节点列表) => {
     return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
       return {
