@@ -1,7 +1,7 @@
 import os
 
 # 配置：根据需求设置最大行数限制
-MAX_LINES = 35
+MAX_LINES = 25
 TEST_FILE = "AutoTest.txt"
 
 

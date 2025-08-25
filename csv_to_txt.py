@@ -6,7 +6,6 @@ csv_files = [
     "SIN.csv",
     "NRT.csv",
     "SEA.csv",
-    "IPV6.csv",
 ]
 
 area_names = [
@@ -15,7 +14,6 @@ area_names = [
     "新加坡",
     "东京",
     "西雅图",
-    "IPv6",
 ]
 
 def csv_to_txt(csv_files, area_names, output_filename):

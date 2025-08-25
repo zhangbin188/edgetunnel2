@@ -31,7 +31,6 @@ jobs:
             
             # 1. 下载 CloudFlare IP 列表
             wget -qO- https://www.cloudflare-cn.com/ips-v4/ | tee ipv4.txt
-            wget -qO- https://www.cloudflare-cn.com/ips-v6/ | tee ipv6.txt
 
             # 2. 配置环境
             chmod +x CloudflareST
@@ -44,8 +43,6 @@ jobs:
             ./CloudflareST -f ipv4.txt -cfcolo NRT -sl 20 -n 1000 -dn 5 -o NRT.csv
             ./CloudflareST -f ipv4.txt -cfcolo SEA -sl 20 -n 1000 -dn 5 -o SEA.csv
             rm -f ipv4.txt
-            ./CloudflareST -f ipv6.txt -n 1000 -dn 5 -o IPV6.csv
-            rm -f ipv6.txt
             python csv_to_txt.py
             
             # 4. 检查行数限制（执行脚本，获取状态码）
