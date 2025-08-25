@@ -8,19 +8,6 @@ let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
 
-// 硬编码IPv6地址段,因为无法直接访问CF
-// 来自:  https://www.cloudflare-cn.com/ips-v6
-let IPv6地址段 = [
-    "2400:cb00::/32",
-    "2606:4700::/32",
-    "2803:f800::/32",
-    "2405:b500::/32",
-    "2405:8100::/32",
-    "2a06:98c0::/29",
-    "2c0f:f248::/32"
-];
-let IPv6随机节点数量 = 10;
-
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
 
@@ -34,7 +21,6 @@ export default {
   async fetch(访问请求, env) {
     订阅路径 = env.SUB_PATH ?? 订阅路径;
     验证UUID = 生成UUID();
-    IPv6随机节点数量 = env.RANDOM_V6 ?? IPv6随机节点数量;
     优选链接 = env.TXT_URL ?? 优选链接;
     SOCKS5代理 = env.SOCKS5 ?? SOCKS5代理;
     SOCKS5全局代理 = env.SOCKS5_GLOBAL ?? SOCKS5全局代理;
@@ -48,7 +34,6 @@ export default {
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
     // 只允许 /订阅路径/ 开头的路径反代
-    // 不支持访问CF CDN
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     if (url.pathname.startsWith(反代前缀)) {
       // 取出目标链接
@@ -72,13 +57,12 @@ export default {
         const 配置生成器 = {
           v2ray: v2ray配置文件,
           clash: clash配置文件,
-          tips: v2ray配置文件,
-          //tips: 提示界面,
+          tips: 提示界面,
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
         优选列表 = await 获取优选列表();
         const 生成配置 = 配置生成器[工具 || "tips"];
-        return await 生成配置(访问请求.headers.get("Host"));
+        return 生成配置(访问请求.headers.get("Host"));
       } else {
           return new Response(null, { status: 404 });
       }
@@ -362,10 +346,6 @@ async function 获取SOCKS5代理(SOCKS5) {
 }
 
 // 其它
-function 是IPv6地址(地址) {
-    return 地址.includes(':') && !地址.includes('.');
-}
-
 function 生成UUID() {
   const 二十位 = Array.from(new TextEncoder().encode(订阅路径))
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -399,121 +379,6 @@ async function 提示界面() {
   });
 }
 
-// 生成随机IPv6地址的函数
-function 生成随机IPv6地址(地址段) {
-    // 解析CIDR格式，获取前缀和前缀长度
-    const [前缀, 前缀长度] = 地址段.split('/');
-    const 前缀长度数值 = parseInt(前缀长度, 10);
-    
-    // 将IPv6前缀解析为128位二进制字符串
-    let 二进制前缀 = 转换IPv6到二进制(前缀);
-    
-    // 根据前缀长度截断，只保留网络位
-    二进制前缀 = 二进制前缀.substring(0, 前缀长度数值);
-    
-    // 生成随机主机位，补充到128位
-    const 主机位长度 = 128 - 前缀长度数值;
-    let 随机主机位 = '';
-    for (let i = 0; i < 主机位长度; i++) {
-        随机主机位 += Math.floor(Math.random() * 2);
-    }
-    
-    // 组合网络位和主机位，形成完整的128位IPv6地址
-    const 完整二进制 = 二进制前缀 + 随机主机位;
-    
-    // 将二进制转换回标准IPv6格式
-    return 转换二进制到IPv6(完整二进制);
-}
-
-// 辅助函数：将IPv6地址转换为128位二进制字符串
-function 转换IPv6到二进制(ipv6) {
-    // 处理压缩的::
-    let 扩展地址 = ipv6;
-    if (ipv6.includes('::')) {
-        const [前半部分, 后半部分] = ipv6.split('::');
-        const 前半部分数组 = 前半部分 ? 前半部分.split(':') : [];
-        const 后半部分数组 = 后半部分 ? 后半部分.split(':') : [];
-        const 缺失部分数量 = 8 - 前半部分数组.length - 后半部分数组.length;
-        扩展地址 = [...前半部分数组, ...Array(缺失部分数量).fill('0'), ...后半部分数组].join(':');
-    }
-    
-    // 分割为8个16位部分
-    const 部分数组 = 扩展地址.split(':');
-    
-    // 转换每个部分为16位二进制
-    let 二进制字符串 = '';
-    for (const 部分 of 部分数组) {
-        // 补全4位十六进制
-        const 完整部分 = 部分.padStart(4, '0');
-        // 转换为16位二进制
-        let 二进制部分 = parseInt(完整部分, 16).toString(2).padStart(16, '0');
-        二进制字符串 += 二进制部分;
-    }
-    
-    return 二进制字符串;
-}
-
-// 辅助函数：将128位二进制字符串转换为标准IPv6地址
-function 转换二进制到IPv6(二进制字符串) {
-    // 分割为8个16位部分
-    const 部分数组 = [];
-    for (let i = 0; i < 128; i += 16) {
-        const 二进制部分 = 二进制字符串.substring(i, i + 16);
-        // 转换为十六进制
-        const 十六进制部分 = parseInt(二进制部分, 2).toString(16);
-        部分数组.push(十六进制部分);
-    }
-    
-    // 找到最长的连续零序列，用于压缩表示
-    let 最长零序列长度 = 0;
-    let 最长零序列起始索引 = -1;
-    let 当前零序列长度 = 0;
-    let 当前零序列起始索引 = -1;
-    
-    for (let i = 0; i < 部分数组.length; i++) {
-        if (部分数组[i] === '0') {
-            if (当前零序列起始索引 === -1) {
-                当前零序列起始索引 = i;
-            }
-            当前零序列长度++;
-            if (当前零序列长度 > 最长零序列长度) {
-                最长零序列长度 = 当前零序列长度;
-                最长零序列起始索引 = 当前零序列起始索引;
-            }
-        } else {
-            当前零序列长度 = 0;
-            当前零序列起始索引 = -1;
-        }
-    }
-    
-    // 压缩表示（只替换一次最长的连续零序列）
-    let ipv6地址;
-    if (最长零序列长度 >= 2) {
-        const 前半部分 = 部分数组.slice(0, 最长零序列起始索引);
-        const 后半部分 = 部分数组.slice(最长零序列起始索引 + 最长零序列长度);
-        ipv6地址 = [...前半部分, '', ...后半部分].join(':');
-        // 处理开头或结尾的空字符串
-        ipv6地址 = ipv6地址.replace(/^:+|:+$/g, '::').replace(/::+/g, '::');
-    } else {
-        ipv6地址 = 部分数组.join(':');
-    }
-    
-    return ipv6地址;
-}
-
-// 生成IPv6节点列表的函数 - 简化，不再需要异步获取地址段
-function 生成IPv6节点() {
-    const IPv6节点列表 = [];
-    // 直接使用配置区的硬编码地址段
-    for (let i = 0; i < IPv6随机节点数量 && IPv6地址段.length > 0; i++) {
-        // 随机选择一个地址段
-        const 随机地址段 = IPv6地址段[Math.floor(Math.random() * IPv6地址段.length)];
-        const 随机IPv6 = 生成随机IPv6地址(随机地址段);
-        IPv6节点列表.push(`${随机IPv6}#IPv6随机地址 ${i + 1}`);
-    }
-    return IPv6节点列表;
-}
-
 async function 获取优选列表() {
   if (优选链接) {
     const 读取优选文本 = await fetch(优选链接);
@@ -526,34 +391,23 @@ async function 获取优选列表() {
   return [];
 }
 
-async function 处理优选列表(优选列表, hostName) {
-  // 先添加原生节点
-  const 基础列表 = [`${hostName}#原生节点`, ...优选列表];
-  
-  // 生成IPv6节点并添加到列表（现在是同步操作）
-  const IPv6节点 = 生成IPv6节点();
-  const 完整列表 = [...基础列表, ...IPv6节点];
-  
-  // 处理所有节点（包括原有节点和新添加的IPv6节点）
-  return 完整列表.map((获取优选, index) => {
+function 处理优选列表(优选列表, hostName) {
+  优选列表.unshift(`${hostName}#原生节点`);
+  return 优选列表.map((获取优选, index) => {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
-    // 处理IPv6地址中可能包含的冒号
-    const 端口 = 拆分地址端口.length > 1 && !isNaN(拆分地址端口[拆分地址端口.length - 1]) 
-      ? Number(拆分地址端口.pop()) 
-      : 443;
+    const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
     const 地址 = 拆分地址端口.join(":");
     return { 地址, 端口, 节点名字 };
   });
 }
 
-async function v2ray配置文件(hostName) {
-  const 节点列表 = await 处理优选列表(优选列表, hostName);
+// 订阅页面
+function v2ray配置文件(hostName) {
+  const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
-      // 对IPv6地址添加中括号
-      const 格式化地址 = 是IPv6地址(地址) ? `[${地址}]` : 地址;
-      return `vless://${验证UUID}@${格式化地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+      return `vless://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
     })
     .join("\n");
 
@@ -563,16 +417,14 @@ async function v2ray配置文件(hostName) {
   });
 }
 
-async function clash配置文件(hostName) {
-  const 节点列表 = await 处理优选列表(优选列表, hostName);
+function clash配置文件(hostName) {
+  const 节点列表 = 处理优选列表(优选列表, hostName);
   const 生成节点 = (节点列表) => {
     return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
-      // 对IPv6地址添加中括号
-      const 格式化地址 = 是IPv6地址(地址) ? `[${地址}]` : 地址;
       return {
         nodeConfig: `- name: ${节点名字}
   type: vless
-  server: ${格式化地址}
+  server: ${地址}
   port: ${端口}
   uuid: ${验证UUID}
   udp: true
