@@ -362,6 +362,10 @@ async function 获取SOCKS5代理(SOCKS5) {
 }
 
 // 其它
+function 是IPv6地址(地址) {
+    return 地址.includes(':') && !地址.includes('.');
+}
+
 function 生成UUID() {
   const 二十位 = Array.from(new TextEncoder().encode(订阅路径))
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -459,7 +463,9 @@ async function v2ray配置文件(hostName) {
   const 节点列表 = await 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
-      return `vless://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+      // 对IPv6地址添加中括号
+      const 格式化地址 = 是IPv6地址(地址) ? `[${地址}]` : 地址;
+      return `vless://${验证UUID}@${格式化地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
     })
     .join("\n");
 
@@ -473,10 +479,12 @@ async function clash配置文件(hostName) {
   const 节点列表 = await 处理优选列表(优选列表, hostName);
   const 生成节点 = (节点列表) => {
     return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
+      // 对IPv6地址添加中括号
+      const 格式化地址 = 是IPv6地址(地址) ? `[${地址}]` : 地址;
       return {
         nodeConfig: `- name: ${节点名字}
   type: vless
-  server: ${地址}
+  server: ${格式化地址}
   port: ${端口}
   uuid: ${验证UUID}
   udp: true
