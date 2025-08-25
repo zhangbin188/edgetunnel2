@@ -8,6 +8,28 @@ let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
 
+let 随机节点数量 = 10;
+
+// https://www.cloudflare-cn.com/ips-v4
+// 硬编码,因为无法直接访问CF CDN
+const 地址段 = [
+  "173.245.48.0/20",
+  "103.21.244.0/22",
+  "103.22.200.0/22",
+  "103.31.4.0/22",
+  "141.101.64.0/18",
+  "108.162.192.0/18",
+  "190.93.240.0/20",
+  "188.114.96.0/20",
+  "197.234.240.0/22",
+  "198.41.128.0/17",
+  "162.158.0.0/15",
+  "104.16.0.0/13",
+  "104.24.0.0/14",
+  "172.64.0.0/13",
+  "131.0.72.0/22"
+];
+
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
 
@@ -27,13 +49,14 @@ export default {
     反代IP = env.PROXY_IP ?? 反代IP;
     NAT64前缀 = env.NAT64 ?? NAT64前缀;
     DOH地址 = env.DOH ?? DOH地址;
+    随机节点数量 = env.RANDOM_IP ?? 随机节点数量;
 
     const url = new URL(访问请求.url);
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade");
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    // 只允许 /订阅路径/ 开头的路径反代
+    // 只允许 /订阅路径/ 开头的路径反代 无法访问CF CDN
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     if (url.pathname.startsWith(反代前缀)) {
       // 取出目标链接
@@ -61,6 +84,8 @@ export default {
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
         优选列表 = await 获取优选列表();
+        const 随机节点列表 = 生成随机节点(随机节点数量);
+        优选列表 = [...优选列表, ...随机节点列表];
         const 生成配置 = 配置生成器[工具 || "tips"];
         return 生成配置(访问请求.headers.get("Host"));
       } else {
@@ -73,6 +98,63 @@ export default {
     }
   },
 };
+
+// 生成指定数量的随机节点
+function 生成随机节点(数量) {
+  const 随机节点 = [];
+  for (let i = 0; i < 数量; i++) {
+    // 随机选择一个地址段
+    const 随机地址段 = 地址段[Math.floor(Math.random() * 地址段.length)];
+    // 从地址段生成随机IP
+    const 随机IP = 从地址段生成随机IP(随机地址段);
+    // 生成随机端口(1-65535)
+    const 随机端口 = Math.floor(Math.random() * 65535) + 1;
+    // 按照格式"地址#随机地址 数字"添加
+    随机节点.push(`${随机IP}:${随机端口}#随机地址 ${i + 1}`);
+  }
+  return 随机节点;
+}
+
+// 从CIDR地址段生成随机IP
+function 从地址段生成随机IP(cidr) {
+  const [网络地址, 前缀长度] = cidr.split('/');
+  const 网络地址数组 = 网络地址.split('.').map(Number);
+  
+  // 计算子网掩码
+  const 子网掩码 = [];
+  for (let i = 0; i < 4; i++) {
+    if (前缀长度 >= (i + 1) * 8) {
+      子网掩码[i] = 255;
+    } else if (前缀长度 < i * 8) {
+      子网掩码[i] = 0;
+    } else {
+      const 剩余位数 = 前缀长度 - i * 8;
+      子网掩码[i] = (0xff << (8 - 剩余位数)) & 0xff;
+    }
+  }
+  
+  // 计算网络地址和广播地址
+  const 网络地址整数 = (网络地址数组[0] << 24) | (网络地址数组[1] << 16) | (网络地址数组[2] << 8) | 网络地址数组[3];
+  const 子网掩码整数 = (子网掩码[0] << 24) | (子网掩码[1] << 16) | (子网掩码[2] << 8) | 子网掩码[3];
+  const 主机位数量 = 32 - parseInt(前缀长度);
+  
+  // 生成随机主机位
+  let 随机主机位 = 0;
+  for (let i = 0; i < 主机位数量; i++) {
+    随机主机位 |= (Math.random() > 0.5 ? 1 : 0) << i;
+  }
+  
+  // 计算随机IP
+  const 随机IP整数 = (网络地址整数 & 子网掩码整数) | 随机主机位;
+  
+  // 转换为点分十进制格式
+  return [
+    (随机IP整数 >> 24) & 0xff,
+    (随机IP整数 >> 16) & 0xff,
+    (随机IP整数 >> 8) & 0xff,
+    随机IP整数 & 0xff
+  ].join('.');
+}
 
 // 脚本主要架构
 // 第一步，读取和构建基础访问结构
