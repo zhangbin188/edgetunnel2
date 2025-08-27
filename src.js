@@ -1,12 +1,19 @@
 import { connect } from "cloudflare:sockets";
 
+// 配置区块
 let 订阅路径 = "订阅路径";
+
 let 验证UUID;
+
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
+
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
-let NAT64前缀 = "2001:67c:2960:6464::/96";
+
+let 反代IP = "proxyip.cmliussss.net";
+
+let NAT64前缀 = "2001:67c:2960:6464::";
 let DOH地址 = "1.1.1.1";
 
 // 网页入口
@@ -17,6 +24,7 @@ export default {
     优选链接 = env.TXT_URL ?? 优选链接;
     SOCKS5代理 = env.SOCKS5 ?? SOCKS5代理;
     SOCKS5全局代理 = env.SOCKS5_GLOBAL ?? SOCKS5全局代理;
+    反代IP = env.PROXY_IP ?? 反代IP;
     NAT64前缀 = env.NAT64 ?? NAT64前缀;
     DOH地址 = env.DOH ?? DOH地址;
 
@@ -95,7 +103,7 @@ function 使用64位加解密(还原混淆字符) {
   return 解密.buffer;
 }
 
-// 第二步，解读VL协议数据，创建TCP握手（直连、SOCKS5、NAT64）
+// 第二步，解读VL协议数据，创建TCP握手（直连、SOCKS5、反代、NAT64）
 async function 解析VL标头(VL数据, WS接口, TCP接口) {
   if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
     return null;
@@ -142,7 +150,12 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
       TCP接口 = await 创建SOCKS5接口(识别地址类型, 访问地址, 访问端口);
       await TCP接口.opened;
     } catch {
+        try {
+          TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
+          await TCP接口.opened;
+        } catch {
             return new Response("连接失败", { status: 502 });
+          }
       }
   } else {
     try {
@@ -155,6 +168,34 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
           await TCP接口.opened;
         } catch {
           try {
+            let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+            TCP接口 = await connect({
+              hostname: 反代IP地址,
+              port: 反代IP端口 || 443,
+            });
+            await TCP接口.opened;
+          } catch {
+            try {
+              const NAT64地址 = 识别地址类型 === 1
+                ? 转换IPv4到NAT64(访问地址)
+                : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
+              TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
+              await TCP接口.opened;
+            } catch {
+              return new Response("连接失败", { status: 502 });
+            }
+          }
+        }
+      } else {
+        try {
+          let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+          TCP接口 = await connect({
+            hostname: 反代IP地址,
+            port: 反代IP端口 || 443,
+          });
+          await TCP接口.opened;
+        } catch {
+          try {
             const NAT64地址 = 识别地址类型 === 1
               ? 转换IPv4到NAT64(访问地址)
               : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
@@ -164,16 +205,6 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
             return new Response("连接失败", { status: 502 });
           }
         }
-      } else {
-        try {
-          const NAT64地址 = 识别地址类型 === 1
-            ? 转换IPv4到NAT64(访问地址)
-            : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
-          TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
-          await TCP接口.opened;
-        } catch {
-          return new Response("连接失败", { status: 502 });
-        }
       }
     }
   }
@@ -182,45 +213,8 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
 
 // 将IPv4地址转换为NAT64 IPv6地址
 function 转换IPv4到NAT64(ipv4地址) {
-    try {
-        // 移除前缀中的CIDR后缀
-        const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
-        
-        // 验证前缀是否为有效的IPv6前缀
-        if (!isValidIPv6Prefix(清理后的前缀)) {
-            throw new Error(`无效的NAT64前缀: ${清理后的前缀}`);
-        }
-        
-        // 拆分IPv4为四段并转换为十六进制
-        const ipv4Parts = ipv4地址.split(".");
-        if (ipv4Parts.length !== 4) {
-            throw new Error(`无效的IPv4地址: ${ipv4地址}`);
-        }
-        
-        const 十六进制 = ipv4Parts.map(part => {
-            const num = parseInt(part, 10);
-            if (isNaN(num) || num < 0 || num > 255) {
-                throw new Error(`无效的IPv4段: ${part}`);
-            }
-            return num.toString(16).padStart(2, "0");
-        });
-        
-        // 组合前缀与IPv4十六进制表示，确保正确的IPv6格式
-        // 检查前缀是否以冒号结尾，确保拼接正确
-        const prefixEndsWithColon = 清理后的前缀.endsWith(':');
-        const nat64Address = `${清理后的前缀}${prefixEndsWithColon ? '' : ':'}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}`;
-        
-        // 验证生成的NAT64地址
-        if (!isValidIPv6(nat64Address)) {
-            throw new Error(`生成无效的NAT64地址: ${nat64Address}`);
-        }
-        
-        console.log(`成功将IPv4 ${ipv4地址} 转换为NAT64地址: ${nat64Address}`);
-        return nat64Address;
-    } catch (error) {
-        console.error("NAT64地址转换错误:", error.message);
-        throw error;
-    }
+  const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
+  return `[${NAT64前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
 }
 
 // 解析域名到IPv4地址
