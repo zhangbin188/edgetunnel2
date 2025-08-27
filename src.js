@@ -1,19 +1,12 @@
 import { connect } from "cloudflare:sockets";
 
-// 配置区块
 let 订阅路径 = "订阅路径";
-
 let 验证UUID;
-
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
-
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
-
-let 反代IP= "";
-
-let NAT64前缀 = "2a09:11c0:f1:be00::/96";
+let NAT64前缀 = "2a01:4f9:c010:3f02:64::/96";
 let DOH地址 = "1.1.1.1";
 
 // 网页入口
@@ -24,7 +17,6 @@ export default {
     优选链接 = env.TXT_URL ?? 优选链接;
     SOCKS5代理 = env.SOCKS5 ?? SOCKS5代理;
     SOCKS5全局代理 = env.SOCKS5_GLOBAL ?? SOCKS5全局代理;
-    反代IP = env.PROXY_IP ?? 反代IP;
     NAT64前缀 = env.NAT64 ?? NAT64前缀;
     DOH地址 = env.DOH ?? DOH地址;
 
@@ -103,7 +95,7 @@ function 使用64位加解密(还原混淆字符) {
   return 解密.buffer;
 }
 
-// 第二步，解读VL协议数据，创建TCP握手（直连、SOCKS5、反代、NAT64）
+// 第二步，解读VL协议数据，创建TCP握手（直连、SOCKS5、NAT64）
 async function 解析VL标头(VL数据, WS接口, TCP接口) {
   if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
     return null;
@@ -163,34 +155,6 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
           await TCP接口.opened;
         } catch {
           try {
-            let [反代IP地址, 反代IP端口] = 反代IP.split(":");
-            TCP接口 = await connect({
-              hostname: 反代IP地址,
-              port: 反代IP端口 || 443,
-            });
-            await TCP接口.opened;
-          } catch {
-            try {
-              const NAT64地址 = 识别地址类型 === 1
-                ? 转换IPv4到NAT64(访问地址)
-                : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
-              TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
-              await TCP接口.opened;
-            } catch {
-              return new Response("连接失败", { status: 502 });
-            }
-          }
-        }
-      } else {
-        try {
-          let [反代IP地址, 反代IP端口] = 反代IP.split(":");
-          TCP接口 = await connect({
-            hostname: 反代IP地址,
-            port: 反代IP端口 || 443,
-          });
-          await TCP接口.opened;
-        } catch {
-          try {
             const NAT64地址 = 识别地址类型 === 1
               ? 转换IPv4到NAT64(访问地址)
               : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
@@ -199,6 +163,16 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
           } catch {
             return new Response("连接失败", { status: 502 });
           }
+        }
+      } else {
+        try {
+          const NAT64地址 = 识别地址类型 === 1
+            ? 转换IPv4到NAT64(访问地址)
+            : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
+          TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
+          await TCP接口.opened;
+        } catch {
+          return new Response("连接失败", { status: 502 });
         }
       }
     }
