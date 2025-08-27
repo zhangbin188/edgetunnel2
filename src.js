@@ -182,12 +182,45 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
 
 // 将IPv4地址转换为NAT64 IPv6地址
 function 转换IPv4到NAT64(ipv4地址) {
-    // 移除前缀中的CIDR后缀
-    const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
-    // 拆分IPv4为四段并转换为十六进制
-    const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
-    // 组合前缀与IPv4十六进制表示
-    return `[${清理后的前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
+    try {
+        // 移除前缀中的CIDR后缀
+        const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
+        
+        // 验证前缀是否为有效的IPv6前缀
+        if (!isValidIPv6Prefix(清理后的前缀)) {
+            throw new Error(`无效的NAT64前缀: ${清理后的前缀}`);
+        }
+        
+        // 拆分IPv4为四段并转换为十六进制
+        const ipv4Parts = ipv4地址.split(".");
+        if (ipv4Parts.length !== 4) {
+            throw new Error(`无效的IPv4地址: ${ipv4地址}`);
+        }
+        
+        const 十六进制 = ipv4Parts.map(part => {
+            const num = parseInt(part, 10);
+            if (isNaN(num) || num < 0 || num > 255) {
+                throw new Error(`无效的IPv4段: ${part}`);
+            }
+            return num.toString(16).padStart(2, "0");
+        });
+        
+        // 组合前缀与IPv4十六进制表示，确保正确的IPv6格式
+        // 检查前缀是否以冒号结尾，确保拼接正确
+        const prefixEndsWithColon = 清理后的前缀.endsWith(':');
+        const nat64Address = `${清理后的前缀}${prefixEndsWithColon ? '' : ':'}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}`;
+        
+        // 验证生成的NAT64地址
+        if (!isValidIPv6(nat64Address)) {
+            throw new Error(`生成无效的NAT64地址: ${nat64Address}`);
+        }
+        
+        console.log(`成功将IPv4 ${ipv4地址} 转换为NAT64地址: ${nat64Address}`);
+        return nat64Address;
+    } catch (error) {
+        console.error("NAT64地址转换错误:", error.message);
+        throw error;
+    }
 }
 
 // 解析域名到IPv4地址
