@@ -58,7 +58,7 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 | `SOCKS5` | `账号:密码@地址:端口` | SOCKS5 代理配置 |
 | `SOCKS5_GLOBAL` | `true` | 是否启用全局 SOCKS5 代理 |
 | `DOH` | `1.1.1.1` | DoH 地址 |
-| `NAT64` | `2a01:4f9:c010:3f02:64::/96` | NAT64 IPv6 地址前缀 |
+| `NAT64` | `2a09:11c0:f1:be00::/96` | NAT64 IPv6 地址前缀 |
 
 <details>
 <summary><strong>部分公共NAT64服务</strong></summary>
