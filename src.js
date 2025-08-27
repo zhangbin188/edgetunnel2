@@ -40,11 +40,11 @@ export default {
     if (不是WS请求) {
       if (url.pathname === v2rayPath) {
         优选列表 = await 获取优选列表();
-        return v2ray配置文件(访问请求.headers.get("Host"));
+        return v2ray配置文件
       }
       else if (url.pathname === clashPath) {
         优选列表 = await 获取优选列表();
-        return clash配置文件(访问请求.headers.get("Host"));
+        return clash配置文件
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
