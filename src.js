@@ -11,7 +11,7 @@ let 优选列表 = [];
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
 
-let 反代IP = "proxyip.cmliussss.net";
+let 反代IP = "";
 
 let NAT64前缀 = "2a01:4f9:c010:3f02:64::/96";
 let DOH地址 = "1.1.1.1";
@@ -150,12 +150,7 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
       TCP接口 = await 创建SOCKS5接口(识别地址类型, 访问地址, 访问端口);
       await TCP接口.opened;
     } catch {
-        try {
-          TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
-          await TCP接口.opened;
-        } catch {
             return new Response("连接失败", { status: 502 });
-          }
       }
   } else {
     try {
