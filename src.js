@@ -13,7 +13,7 @@ let SOCKS5全局代理 = false;
 
 let 反代IP = "proxyip.cmliussss.net";
 
-let NAT64前缀 = "2001:67c:2960:6464::";
+let NAT64前缀 = "2a01:4f9:c010:3f02:64::/96";
 let DOH地址 = "1.1.1.1";
 
 // 网页入口
@@ -213,8 +213,12 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
 
 // 将IPv4地址转换为NAT64 IPv6地址
 function 转换IPv4到NAT64(ipv4地址) {
-  const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
-  return `[${NAT64前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
+    // 移除前缀中的CIDR后缀
+    const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
+    // 拆分IPv4为四段并转换为十六进制
+    const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
+    // 组合前缀与IPv4十六进制表示
+    return `[${清理后的前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
 }
 
 // 解析域名到IPv4地址
