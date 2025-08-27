@@ -11,7 +11,7 @@ let 优选列表 = [];
 let SOCKS5代理 = false;
 let SOCKS5全局代理 = false;
 
-let 反代IP = "proxyip.cmliussss.net";
+let 反代IP = "proxyip.cmliussss.net1";
 
 let NAT64前缀 = "2a01:4f9:c010:3f02:64::/96";
 let DOH地址 = "1.1.1.1";
