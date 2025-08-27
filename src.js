@@ -269,7 +269,6 @@ async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
   WS接口.addEventListener("message", async (event) => {
     await 传输数据.write(event.data);
   });
-  定时双端保活();
   (async () => {
     while (true) {
       const { value: 返回数据, done } = await 读取数据.read();
@@ -277,13 +276,6 @@ async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
       if (返回数据) await WS接口.send(返回数据);
     }
   })();
-  async function 定时双端保活() {
-    while (true) {
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      传输数据.write(new Uint8Array(0));
-      WS接口.send('');
-    }
-  }
 }
 
 // SOCKS5部分
