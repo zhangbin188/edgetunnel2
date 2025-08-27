@@ -8,7 +8,6 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 - **简单**：Fork 即可使用, 无需复杂配置
 - **易用**：通过环境变量灵活配置
 - **高速**：依托 Cloudflare 全球网络加速
-- **多种方案**：支持 SOCKS5, 反代, NAT64
 - **兼容性强**：支持 v2ray 和 clash 客户端
 - **自动同步**：支持 GitHub Actions 自动同步上游仓库
 - **社区支持**：欢迎参与讨论和贡献代码
@@ -55,10 +54,6 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 | `SUB_PATH` | `订阅路径` | 域名/`订阅路径` |
 | `TXT_URL` | `https://raw.domain.com/CFST.txt` | 优选 IP 列表, 格式：`地址:端口#节点名称`, 端口默认 443 |
 | `PROXY_IP` | `ts.hpc.tw:443` | 反代地址和端口, 端口不填默认 443 |
-| `SOCKS5` | `账号:密码@地址:端口` | SOCKS5 代理配置 |
-| `SOCKS5_GLOBAL` | `true` | 是否启用全局 SOCKS5 代理 |
-| `DOH` | `1.1.1.1` | DoH 地址 |
-| `NAT64` | `2001:67c:2960:6464::` | NAT64 IPv6 地址前缀 |
 
 ## 提醒
 
