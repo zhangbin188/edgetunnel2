@@ -37,9 +37,9 @@ jobs:
             pip install pandas
             
             # 3. 执行测速
-            ./CloudflareST -f ipv4.txt -cfcolo HKG -sl 20 -n 1000 -dn 5 -o HKG.csv
-            ./CloudflareST -f ipv4.txt -cfcolo HKG -sl 20 -n 1000 -dn 5 -o KHH.csv
-            ./CloudflareST -f ipv4.txt -cfcolo HKG -sl 20 -n 1000 -dn 5 -o SIN.csv
+            ./CloudflareST -f ipv4.txt -cfcolo HKG -sl 20 -n 1000 -dn 10 -o HKG.csv
+            ./CloudflareST -f ipv4.txt -cfcolo KHH -sl 20 -n 1000 -dn 5 -o KHH.csv
+            ./CloudflareST -f ipv4.txt -cfcolo SIN -sl 20 -n 1000 -dn 5 -o SIN.csv
             ./CloudflareST -f ipv4.txt -cfcolo NRT -sl 20 -n 1000 -dn 5 -o NRT.csv
             ./CloudflareST -f ipv4.txt -cfcolo SEA -sl 20 -n 1000 -dn 5 -o SEA.csv
             rm -f ipv4.txt
