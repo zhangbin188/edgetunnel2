@@ -7,14 +7,14 @@ let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/Aut
 let 优选列表 = [];
 let 反代IP = "proxyip.cmliussss.net";
 
-let 威图锐拆分_1 = "v2";
-let 威图锐拆分_2 = "ray";
+let v2ray拆分_1 = "v2";
+let v2ray拆分_2 = "ray";
 
-let 维列斯拆分_1 = "vl";
-let 维列斯拆分_2 = "ess";
+let vless拆分_1 = "vl";
+let vless拆分_2 = "ess";
 
-let 科拉什拆分_1 = "cla";
-let 科拉什拆分_2 = "sh";
+let clash拆分_1 = "cla";
+let clash拆分_2 = "sh";
 
 // 网页入口
 export default {
@@ -29,8 +29,8 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    const v2rayPath = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
-    const clashPath = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
+    const v2rayPath = `/${encodeURIComponent(订阅路径)}/${v2ray拆分_1}${v2ray拆分_2}`;
+    const clashPath = `/${encodeURIComponent(订阅路径)}/${clash拆分_1}${clash拆分_2}`;
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     
     if (不是WS请求) {
@@ -240,7 +240,7 @@ async function 提示界面() {
     text-align: center;
   }
 </style>
-<strong>请把链接导入 ${科拉什拆分_1}${科拉什拆分_2} 或 ${威图锐拆分_1}${威图锐拆分_2}</strong>
+<strong>请把链接导入 ${clash拆分_1}${clash拆分_2} 或 ${v2ray拆分_1}${v2ray拆分_2}</strong>
 `;
 
   return new Response(提示界面, {
@@ -277,7 +277,7 @@ function v2ray配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
-      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+      return `${vless拆分_1}${vless拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
     })
     .join("\n");
 
@@ -293,7 +293,7 @@ function clash配置文件(hostName) {
     return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
       return {
         nodeConfig: `- name: ${节点名字}
-  type: ${维列斯拆分_1}${维列斯拆分_2}
+  type: ${vless拆分_1}${vless拆分_2}
   server: ${地址}
   port: ${端口}
   uuid: ${验证UUID}
