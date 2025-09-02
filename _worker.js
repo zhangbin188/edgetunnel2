@@ -29,16 +29,12 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    const 编码后的订阅路径 = `/${encodeURIComponent(订阅路径)}`
     const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
     const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     
     if (不是WS请求) {
-      if (url.pathname === 编码后的订阅路径) {
-        return 提示界面();
-      }
-      else if (url.pathname === 威图锐路径) {
+      if (url.pathname === 威图锐路径) {
         优选列表 = await 获取优选列表();
         return 威图锐配置文件(访问请求.headers.get("Host"));
       }
@@ -221,24 +217,6 @@ function 生成UUID() {
     .slice(-12);
 
   return `${前八位}-0000-4000-8000-${后十二位}`;
-}
-
-async function 提示界面() {
-  const 提示界面 = `
-<title>订阅-${订阅路径}</title>
-<style>
-  body {
-    font-size: 25px;
-    text-align: center;
-  }
-</style>
-<strong>请把链接导入 ${科拉什拆分_1}${科拉什拆分_2} 或 ${威图锐拆分_1}${威图锐拆分_2}</strong>
-`;
-
-  return new Response(提示界面, {
-    status: 200,
-    headers: { "Content-Type": "text/html;charset=utf-8" },
-  });
 }
 
 async function 获取优选列表() {
