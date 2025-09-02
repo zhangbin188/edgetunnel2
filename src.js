@@ -29,16 +29,16 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
-    const v2rayPath = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
-    const clashPath = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
+    const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
+    const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     
     if (不是WS请求) {
-      if (url.pathname === v2rayPath) {
+      if (url.pathname === 威图锐路径) {
         优选列表 = await 获取优选列表();
         return v2ray配置文件(访问请求.headers.get("Host"));
       }
-      else if (url.pathname === clashPath) {
+      else if (url.pathname === 科拉什路径) {
         优选列表 = await 获取优选列表();
         return clash配置文件(访问请求.headers.get("Host"));
       }
@@ -57,7 +57,7 @@ export default {
     }
 
     // 反代 无法访问CF CDN
-    if (url.pathname.startsWith(反代前缀) && url.pathname !== v2rayPath && url.pathname !== clashPath) {
+    if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
       try {
           const 请求对象 = new Request(target + url.search, {
