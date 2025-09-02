@@ -25,7 +25,7 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 - **导入您 Fork 的仓库**
 - **添加环境变量**
 - **保存并部署**
-3. **导入订阅并开始使用**
+3. **导入订阅(域名/订阅路径/clash或v2ray)并开始使用**
 
 <details>
 <summary><strong>建议操作：启用 GitHub Actions 同步上游仓库</strong></summary>
@@ -40,7 +40,7 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 <summary><strong>反代说明</strong></summary>
 
 - 并非指的是 `PROXY_IP`, 而是用于没有代理工具场景的简易代理
-- 使用方法: https://域名/订阅路径/https://github.com/ImLTHQ/
+- 使用方法: https://域名/订阅路径/http(或https)://目标域名和路径
 - 无法访问CF CDN
 
 请勿用于非法用途
