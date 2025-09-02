@@ -32,7 +32,9 @@ jobs:
           javascript-obfuscator src.js --output _worker.js \
           --compact true \
           --identifier-names-generator mangled \
-          --rename-globals true
+          --rename-globals true \
+          --string-array true \
+          --string-array-encoding base64
 
       - name: 提交更改
         run: |
