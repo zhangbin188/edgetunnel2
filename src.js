@@ -45,8 +45,8 @@ export default {
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
         const 配置生成器 = {
-          v2ray: v2ray配置文件,
-          clash: clash配置文件,
+          v2ray: 威图锐配置文件,
+          clash: 科拉什配置文件,
           tips: 提示界面,
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
@@ -273,7 +273,7 @@ function 处理优选列表(优选列表, hostName) {
 }
 
 // 订阅页面
-function v2ray配置文件(hostName) {
+function 威图锐配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
@@ -287,7 +287,7 @@ function v2ray配置文件(hostName) {
   });
 }
 
-function clash配置文件(hostName) {
+function 科拉什配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 生成节点 = (节点列表) => {
     return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
