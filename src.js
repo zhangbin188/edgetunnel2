@@ -29,30 +29,22 @@ export default {
     const WS请求 = 读取我的请求标头 == "websocket";
     const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
+    const 订阅路径 = `/${encodeURIComponent(订阅路径)}`
     const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
     const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
     
     if (不是WS请求) {
-      if (url.pathname === 威图锐路径) {
+      if (url.pathname === 订阅路径) {
+        return 提示界面();
+      }
+      else if (url.pathname === 威图锐路径) {
         优选列表 = await 获取优选列表();
-        return v2ray配置文件(访问请求.headers.get("Host"));
+        return 威图锐配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === 科拉什路径) {
         优选列表 = await 获取优选列表();
-        return clash配置文件(访问请求.headers.get("Host"));
-      }
-      else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
-        const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
-        const 配置生成器 = {
-          v2ray: 威图锐配置文件,
-          clash: 科拉什配置文件,
-          tips: 提示界面,
-        };
-        const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
-        优选列表 = await 获取优选列表();
-        const 生成配置 = 配置生成器[工具 || "tips"];
-        return 生成配置(访问请求.headers.get("Host"));
+        return 科拉什配置文件(访问请求.headers.get("Host"));
       }
     }
 
