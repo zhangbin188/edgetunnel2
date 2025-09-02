@@ -1,1 +1,367 @@
-const a0B=a0b;(function(a,b){const A=a0b,c=a();while(!![]){try{const d=-parseInt(A(0x19c))/0x1*(-parseInt(A(0x19d))/0x2)+-parseInt(A(0x1b4))/0x3+parseInt(A(0x196))/0x4*(parseInt(A(0x1b0))/0x5)+parseInt(A(0x1cf))/0x6+-parseInt(A(0x1c4))/0x7+-parseInt(A(0x1e1))/0x8*(parseInt(A(0x1a0))/0x9)+parseInt(A(0x191))/0xa;if(d===b)break;else c['push'](c['shift']());}catch(e){c['push'](c['shift']());}}}(a0a,0xcfbd8));import{connect}from'cloudflare:sockets';let a0c=a0B(0x1b7),a0d,a0e=a0B(0x1a8),a0f=[],a0g=a0B(0x1d1),a0h='v2',a0i=a0B(0x1b8),a0j='vl',a0k=a0B(0x1e2),a0l='cla',a0m='sh';export default{async 'fetch'(a,b){const C=a0B;a0c=b[C(0x195)]??a0c,a0d=a0t(),a0e=b[C(0x1dc)]??a0e,a0g=b[C(0x1c1)]??a0g;const c=new URL(a[C(0x1b3)]),d=a[C(0x1d2)][C(0x199)](C(0x1e3)),e=d=='websocket',f=d?.[C(0x1a3)]()!==C(0x1af),g='/'+encodeURIComponent(a0c),h='/'+encodeURIComponent(a0c)+'/'+a0h+a0i,j='/'+encodeURIComponent(a0c)+'/'+a0l+a0m,k='/'+encodeURIComponent(a0c)+'/';if(f){if(c[C(0x1a2)]===g)return a0u();else{if(c[C(0x1a2)]===h)return a0f=await a0v(),a0x(a[C(0x1d2)][C(0x199)](C(0x1bc)));else{if(c['pathname']===j)return a0f=await a0v(),a0y(a[C(0x1d2)][C(0x199)](C(0x1bc)));}}}if(c['pathname'][C(0x1df)](k)&&c[C(0x1a2)]!==h&&c['pathname']!==j){let l=decodeURIComponent(c[C(0x1a2)][C(0x1e8)](k[C(0x1c0)]));try{const m=new Request(l+c[C(0x1d0)],{'method':a[C(0x1ad)],'headers':a[C(0x1d2)],'body':a[C(0x19f)]}),n=await fetch(m);return n;}catch{return new Response(null,{'status':0x194});}}if(f)return new Response(null,{'status':0x194});if(e)return await a0n(a);}};async function a0n(a){const D=a0B,[b,c]=new WebSocketPair(),d=a['headers'][D(0x199)](D(0x1e5)),e=a0o(d);return await a0p(e,c),new Response(null,{'status':0x65,'webSocket':b});}function a0a(){const T=['sec-websocket-protocol','replace','&path=','slice','19778870qbYHYJ','&fp=chrome&type=ws&host=','\x0a-\x20name:\x20国内规则\x0a\x20\x20type:\x20select\x0a\x20\x20proxies:\x0a\x20\x20\x20\x20-\x20DIRECT\x0a\x20\x20\x20\x20-\x20延迟优选\x0a\x20\x20\x20\x20-\x20故障转移\x0a\x20\x20\x20\x20-\x20REJECT\x0a','encode','SUB_PATH','68TCCkoL','\x0aproxies:\x0a','padEnd','get','join','/?ed=2560','662OmCoQt','4276ztTUvI','连接失败','body','2829483CVzFBX','\x0a\x20\x20\x20\x20\x20\x20User-Agent:\x20Chrome','pathname','toLowerCase','push','readable','pop','\x0a-\x20name:\x20故障转移\x0a\x20\x20type:\x20fallback\x0a\x20\x20url:\x20https://www.google.com/generate_204\x0a\x20\x20interval:\x2030\x0a\x20\x20proxies:\x0a','https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt','addEventListener','split','\x20\x20\x20\x20-\x20','\x20或\x20','method','\x0a\x20\x20port:\x20','websocket','68485LrvkNJ','write','-\x20name:\x20','url','3147624bjSVXl','://','节点\x20','订阅路径','ray','from','\x0a-\x20name:\x20延迟优选\x0a\x20\x20type:\x20url-test\x0a\x20\x20url:\x20https://www.google.com/generate_204\x0a\x20\x20interval:\x2030\x0a\x20\x20tolerance:\x2050\x0a\x20\x20proxies:\x0a','</strong>\x0a','Host','opened','\x0a\x20\x20network:\x20ws\x0a\x20\x20ws-opts:\x0a\x20\x20\x20\x20path:\x20\x22/?ed=2560\x22\x0a\x20\x20\x20\x20headers:\x0a\x20\x20\x20\x20\x20\x20Host:\x20','filter','length','PROXY_IP','decode','\x0a\x0aproxy-groups:\x0a-\x20name:\x20海外规则\x0a\x20\x20type:\x20select\x0a\x20\x20proxies:\x0a\x20\x20\x20\x20-\x20延迟优选\x0a\x20\x20\x20\x20-\x20故障转移\x0a\x20\x20\x20\x20-\x20DIRECT\x0a\x20\x20\x20\x20-\x20REJECT\x0a','10620295IHRHHX','charCodeAt','</title>\x0a<style>\x0a\x20\x20body\x20{\x0a\x20\x20\x20\x20font-size:\x2025px;\x0a\x20\x20\x20\x20text-align:\x20center;\x0a\x20\x20}\x0a</style>\x0a<strong>请把链接导入\x20','?encryption=none&security=tls&sni=','\x0a\x20\x20type:\x20','text/html;charset=utf-8','#原生节点','toString','text/plain;charset=utf-8','writable','buffer','633552mTTljk','search','proxyip.cmliussss.net','headers','proxyConfig','data','send','\x0a<title>订阅-','getWriter','\x0a\x20\x20uuid:\x20','nodeConfig','text','\x0a\x0arules:\x0a\x20\x20-\x20GEOSITE,category-ads-all,广告屏蔽\x0a\x20\x20-\x20GEOSITE,cn,国内规则\x0a\x20\x20-\x20GEOIP,CN,国内规则,no-resolve\x0a\x20\x20-\x20MATCH,海外规则\x0a','TXT_URL','accept','map','startsWith','getUint16','8SKagyH','ess','Upgrade','read'];a0a=function(){return T;};return a0a();}function a0o(a){const E=a0B;a=a[E(0x1e6)](/-/g,'+')[E(0x1e6)](/_/g,'/');const b=atob(a),c=Uint8Array[E(0x1b9)](b,d=>d[E(0x1c5)](0x0));return c[E(0x1ce)];}async function a0p(a,b,c){const F=a0B;if(a0q(new Uint8Array(a[F(0x1e8)](0x1,0x11)))!==a0d)return null;const d=new Uint8Array(a)[0x11],e=0x12+d+0x1,f=a['slice'](e,e+0x2),g=new DataView(f)[F(0x1e0)](0x0),h=e+0x2,j=new Uint8Array(a[F(0x1e8)](h,h+0x1)),k=j[0x0];let l=0x0,m='',n=h+0x1;switch(k){case 0x1:l=0x4,m=new Uint8Array(a[F(0x1e8)](n,n+l))[F(0x19a)]('.');break;case 0x2:l=new Uint8Array(a[F(0x1e8)](n,n+0x1))[0x0],n+=0x1,m=new TextDecoder()[F(0x1c2)](a[F(0x1e8)](n,n+l));break;case 0x3:l=0x10;const p=new DataView(a[F(0x1e8)](n,n+l)),q=[];for(let r=0x0;r<0x8;r++){q['push'](p[F(0x1e0)](r*0x2)[F(0x1cb)](0x10));}m=q[F(0x19a)](':');break;}const o=a[F(0x1e8)](n+l);try{c=await connect({'hostname':m,'port':g,'allowHalfOpen':!![]}),await c['opened'];}catch{try{let [s,t]=a0g[F(0x1aa)](':');c=await connect({'hostname':s,'port':t||0x1bb}),await c[F(0x1bd)];}catch{return new Response(F(0x19e),{'status':0x1f6});}}a0s(b,c,o);}function a0q(a,b=0x0){const c=(a0r[a[b+0x0]]+a0r[a[b+0x1]]+a0r[a[b+0x2]]+a0r[a[b+0x3]]+'-'+a0r[a[b+0x4]]+a0r[a[b+0x5]]+'-'+a0r[a[b+0x6]]+a0r[a[b+0x7]]+'-'+a0r[a[b+0x8]]+a0r[a[b+0x9]]+'-'+a0r[a[b+0xa]]+a0r[a[b+0xb]]+a0r[a[b+0xc]]+a0r[a[b+0xd]]+a0r[a[b+0xe]]+a0r[a[b+0xf]])['toLowerCase']();return c;}const a0r=[];for(let a0z=0x0;a0z<0x100;++a0z){a0r[a0B(0x1a4)]((a0z+0x100)['toString'](0x10)[a0B(0x1e8)](0x1));}async function a0s(a,b,c){const G=a0B;a[G(0x1dd)](),await a[G(0x1d5)](new Uint8Array([0x0,0x0])['buffer']);const d=b[G(0x1cd)][G(0x1d7)](),e=b[G(0x1a5)]['getReader']();if(c)await d['write'](c);a[G(0x1a9)]('message',async f=>{const H=G;await d[H(0x1b1)](f[H(0x1d4)]);}),((async()=>{const I=G;while(!![]){const {value:f,done:g}=await e[I(0x1e4)]();if(g)break;if(f)await a[I(0x1d5)](f);}})());}function a0b(a,b){const c=a0a();return a0b=function(d,e){d=d-0x191;let f=c[d];return f;},a0b(a,b);}function a0t(){const J=a0B,a=Array[J(0x1b9)](new TextEncoder()[J(0x194)](a0c))['map'](d=>d[J(0x1cb)](0x10)['padStart'](0x2,'0'))[J(0x19a)]('')['slice'](0x0,0x14)[J(0x198)](0x14,'0'),b=a[J(0x1e8)](0x0,0x8),c=a[J(0x1e8)](-0xc);return b+'-0000-4000-8000-'+c;}async function a0u(){const K=a0B,a=K(0x1d6)+a0c+K(0x1c6)+a0l+a0m+K(0x1ac)+a0h+a0i+K(0x1bb);return new Response(a,{'status':0xc8,'headers':{'Content-Type':K(0x1c9)}});}async function a0v(){const L=a0B;if(a0e){const a=await fetch(a0e),b=await a[L(0x1da)]();return b[L(0x1aa)]('\x0a')[L(0x1de)](c=>c['trim']())[L(0x1bf)](c=>c);}return[];}function a0w(a,b){const M=a0B;return a['unshift'](b+M(0x1ca)),a[M(0x1de)]((c,d)=>{const N=M,[e,f=N(0x1b6)+(d+0x1)]=c[N(0x1aa)]('#'),g=e[N(0x1aa)](':'),h=g[N(0x1c0)]>0x1?Number(g[N(0x1a6)]()):0x1bb,j=g[N(0x19a)](':');return{'地址':j,'端口':h,'节点名字':f};});}function a0x(a){const P=a0B,b=a0w(a0f,a),c=b['map'](({地址:d,端口:e,节点名字:f})=>{const O=a0b;return''+a0j+a0k+O(0x1b5)+a0d+'@'+d+':'+e+O(0x1c7)+a+O(0x192)+a+O(0x1e7)+encodeURIComponent(O(0x19b))+'#'+f;})[P(0x19a)]('\x0a');return new Response(c,{'status':0xc8,'headers':{'Content-Type':P(0x1cc)}});}function a0y(a){const S=a0B,b=a0w(a0f,a),c=g=>{const Q=a0b;return g[Q(0x1de)](({地址:h,端口:j,节点名字:k})=>{const R=Q;return{'nodeConfig':R(0x1b2)+k+R(0x1c8)+a0j+a0k+'\x0a\x20\x20server:\x20'+h+R(0x1ae)+j+R(0x1d8)+a0d+'\x0a\x20\x20udp:\x20true\x0a\x20\x20tls:\x20true\x0a\x20\x20sni:\x20'+a+R(0x1be)+a+R(0x1a1),'proxyConfig':R(0x1ab)+k};});},d=c(b)['map'](g=>g[S(0x1d9)])[S(0x19a)]('\x0a'),e=c(b)['map'](g=>g[S(0x1d3)])[S(0x19a)]('\x0a'),f=S(0x197)+d+S(0x1c3)+e+S(0x193)+e+'\x0a-\x20name:\x20广告屏蔽\x0a\x20\x20type:\x20select\x0a\x20\x20proxies:\x0a\x20\x20\x20\x20-\x20REJECT\x0a\x20\x20\x20\x20-\x20DIRECT\x0a\x20\x20\x20\x20-\x20延迟优选\x0a\x20\x20\x20\x20-\x20故障转移\x0a'+e+S(0x1ba)+e+S(0x1a7)+e+S(0x1db);return new Response(f,{'status':0xc8,'headers':{'Content-Type':S(0x1cc)}});}
+import { connect } from "cloudflare:sockets";
+
+// 配置区块
+let 订阅路径 = "订阅路径";
+let 验证UUID;
+let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
+let 优选列表 = [];
+let 反代IP = "proxyip.cmliussss.net";
+
+let 威图锐拆分_1 = "v2";
+let 威图锐拆分_2 = "ray";
+
+let 维列斯拆分_1 = "vl";
+let 维列斯拆分_2 = "ess";
+
+let 科拉什拆分_1 = "cla";
+let 科拉什拆分_2 = "sh";
+
+// 网页入口
+export default {
+  async fetch(访问请求, env) {
+    订阅路径 = env.SUB_PATH ?? 订阅路径;
+    验证UUID = 生成UUID();
+    优选链接 = env.TXT_URL ?? 优选链接;
+    反代IP = env.PROXY_IP ?? 反代IP;
+
+    const url = new URL(访问请求.url);
+    const 读取我的请求标头 = 访问请求.headers.get("Upgrade");
+    const WS请求 = 读取我的请求标头 == "websocket";
+    const 不是WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
+
+    const 编码后的订阅路径 = `/${encodeURIComponent(订阅路径)}`
+    const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
+    const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
+    const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
+    
+    if (不是WS请求) {
+      if (url.pathname === 编码后的订阅路径) {
+        return 提示界面();
+      }
+      else if (url.pathname === 威图锐路径) {
+        优选列表 = await 获取优选列表();
+        return 威图锐配置文件(访问请求.headers.get("Host"));
+      }
+      else if (url.pathname === 科拉什路径) {
+        优选列表 = await 获取优选列表();
+        return 科拉什配置文件(访问请求.headers.get("Host"));
+      }
+    }
+
+    // 反代 无法访问CF CDN
+    if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
+      let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
+      try {
+          const 请求对象 = new Request(target + url.search, {
+            method: 访问请求.method,
+            headers: 访问请求.headers,
+            body: 访问请求.body,
+          });
+          const 响应对象 = await fetch(请求对象);
+          return 响应对象;
+      } catch {
+        return new Response(null, { status: 404 });
+      }
+    }
+
+    if (不是WS请求) {
+      return new Response(null, { status: 404 });
+    }
+
+    if (WS请求) {
+      return await 升级WS请求(访问请求);
+    }
+  },
+};
+
+// 脚本主要架构
+// 第一步，读取和构建基础访问结构
+async function 升级WS请求(访问请求) {
+  const [客户端, WS接口] = new WebSocketPair(); //创建WS接口对象
+  const 读取我的加密访问内容数据头 = 访问请求.headers.get('sec-websocket-protocol'); //读取访问标头中的WS通信数据
+  const 解密数据 = 使用64位加解密(读取我的加密访问内容数据头); //解密目标访问数据，传递给TCP握手进程
+  await 解析VL标头(解密数据, WS接口); //解析VL数据并进行TCP握手
+  return new Response(null, { status: 101, webSocket: 客户端 }); //一切准备就绪后，回复客户端WS连接升级成功
+}
+
+function 使用64位加解密(还原混淆字符) {
+  还原混淆字符 = 还原混淆字符.replace(/-/g, "+").replace(/_/g, "/");
+  const 解密数据 = atob(还原混淆字符);
+  const 解密 = Uint8Array.from(解密数据, (c) => c.charCodeAt(0));
+  return 解密.buffer;
+}
+
+// 第二步，解读VL协议数据，创建TCP握手（直连->反代）
+async function 解析VL标头(VL数据, WS接口, TCP接口) {
+  if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
+    return null;
+  }
+
+  const 获取数据定位 = new Uint8Array(VL数据)[17];
+  const 提取端口索引 = 18 + 获取数据定位 + 1;
+  const 建立端口缓存 = VL数据.slice(提取端口索引, 提取端口索引 + 2);
+  const 访问端口 = new DataView(建立端口缓存).getUint16(0);
+
+  const 提取地址索引 = 提取端口索引 + 2;
+  const 建立地址缓存 = new Uint8Array(VL数据.slice(提取地址索引, 提取地址索引 + 1));
+  const 识别地址类型 = 建立地址缓存[0];
+
+  let 地址长度 = 0;
+  let 访问地址 = "";
+  let 地址信息索引 = 提取地址索引 + 1;
+
+  switch (识别地址类型) {
+    case 1:
+      地址长度 = 4;
+      访问地址 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度)).join(".");
+      break;
+    case 2:
+      地址长度 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 1))[0];
+      地址信息索引 += 1;
+      访问地址 = new TextDecoder().decode(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
+      break;
+    case 3:
+      地址长度 = 16;
+      const dataView = new DataView(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
+      const ipv6 = [];
+      for (let i = 0; i < 8; i++) {
+        ipv6.push(dataView.getUint16(i * 2).toString(16));
+      }
+      访问地址 = ipv6.join(":");
+      break;
+  }
+
+  const 写入初始数据 = VL数据.slice(地址信息索引 + 地址长度);
+
+  try {
+    // 尝试直接连接
+    TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
+    await TCP接口.opened;
+  } catch {
+    try {
+      // 尝试通过反代连接
+      let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+      TCP接口 = await connect({
+        hostname: 反代IP地址,
+        port: 反代IP端口 || 443,
+      });
+      await TCP接口.opened;
+    } catch {
+      return new Response("连接失败", { status: 502 });
+    }
+  }
+  
+  建立传输管道(WS接口, TCP接口, 写入初始数据);
+}
+
+function 验证VL的密钥(arr, offset = 0) {
+  const uuid = (
+    转换密钥格式[arr[offset + 0]] +
+    转换密钥格式[arr[offset + 1]] +
+    转换密钥格式[arr[offset + 2]] +
+    转换密钥格式[arr[offset + 3]] +
+    "-" +
+    转换密钥格式[arr[offset + 4]] +
+    转换密钥格式[arr[offset + 5]] +
+    "-" +
+    转换密钥格式[arr[offset + 6]] +
+    转换密钥格式[arr[offset + 7]] +
+    "-" +
+    转换密钥格式[arr[offset + 8]] +
+    转换密钥格式[arr[offset + 9]] +
+    "-" +
+    转换密钥格式[arr[offset + 10]] +
+    转换密钥格式[arr[offset + 11]] +
+    转换密钥格式[arr[offset + 12]] +
+    转换密钥格式[arr[offset + 13]] +
+    转换密钥格式[arr[offset + 14]] +
+    转换密钥格式[arr[offset + 15]]
+  ).toLowerCase();
+  return uuid;
+}
+
+const 转换密钥格式 = [];
+for (let i = 0; i < 256; ++i) {
+  转换密钥格式.push((i + 256).toString(16).slice(1));
+}
+
+// 第三步，创建客户端WS-CF-目标的传输通道并监听状态
+async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
+  WS接口.accept();
+  await WS接口.send(new Uint8Array([0, 0]).buffer);
+
+  const 传输数据 = TCP接口.writable.getWriter();
+  const 读取数据 = TCP接口.readable.getReader();
+
+  if (写入初始数据) await 传输数据.write(写入初始数据);
+
+  WS接口.addEventListener("message", async (event) => {
+    await 传输数据.write(event.data);
+  });
+  (async () => {
+    while (true) {
+      const { value: 返回数据, done } = await 读取数据.read();
+      if (done) break;
+      if (返回数据) await WS接口.send(返回数据);
+    }
+  })();
+}
+
+// 其它
+function 生成UUID() {
+  const 二十位 = Array.from(new TextEncoder().encode(订阅路径))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 20)
+    .padEnd(20, "0");
+
+  const 前八位 = 二十位
+    .slice(0, 8);
+  const 后十二位 = 二十位
+    .slice(-12);
+
+  return `${前八位}-0000-4000-8000-${后十二位}`;
+}
+
+async function 提示界面() {
+  const 提示界面 = `
+<title>订阅-${订阅路径}</title>
+<style>
+  body {
+    font-size: 25px;
+    text-align: center;
+  }
+</style>
+<strong>请把链接导入 ${科拉什拆分_1}${科拉什拆分_2} 或 ${威图锐拆分_1}${威图锐拆分_2}</strong>
+`;
+
+  return new Response(提示界面, {
+    status: 200,
+    headers: { "Content-Type": "text/html;charset=utf-8" },
+  });
+}
+
+async function 获取优选列表() {
+  if (优选链接) {
+    const 读取优选文本 = await fetch(优选链接);
+    const 转换优选文本 = await 读取优选文本.text();
+    return 转换优选文本
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line);
+  }
+  return [];
+}
+
+function 处理优选列表(优选列表, hostName) {
+  优选列表.unshift(`${hostName}#原生节点`);
+  return 优选列表.map((获取优选, index) => {
+    const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
+    const 拆分地址端口 = 地址端口.split(":");
+    const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
+    const 地址 = 拆分地址端口.join(":");
+    return { 地址, 端口, 节点名字 };
+  });
+}
+
+// 订阅页面
+function 威图锐配置文件(hostName) {
+  const 节点列表 = 处理优选列表(优选列表, hostName);
+  const 配置内容 = 节点列表
+    .map(({ 地址, 端口, 节点名字 }) => {
+      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+    })
+    .join("\n");
+
+  return new Response(配置内容, {
+    status: 200,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+  });
+}
+
+function 科拉什配置文件(hostName) {
+  const 节点列表 = 处理优选列表(优选列表, hostName);
+  const 生成节点 = (节点列表) => {
+    return 节点列表.map(({ 地址, 端口, 节点名字 }) => {
+      return {
+        nodeConfig: `- name: ${节点名字}
+  type: ${维列斯拆分_1}${维列斯拆分_2}
+  server: ${地址}
+  port: ${端口}
+  uuid: ${验证UUID}
+  udp: true
+  tls: true
+  sni: ${hostName}
+  network: ws
+  ws-opts:
+    path: "/?ed=2560"
+    headers:
+      Host: ${hostName}
+      User-Agent: Chrome`,
+        proxyConfig: `    - ${节点名字}`,
+      };
+    });
+  };
+
+  const 节点配置 = 生成节点(节点列表)
+    .map((node) => node.nodeConfig)
+    .join("\n");
+  const 代理配置 = 生成节点(节点列表)
+    .map((node) => node.proxyConfig)
+    .join("\n");
+
+  const 配置内容 = `
+proxies:
+${节点配置}
+
+proxy-groups:
+- name: 海外规则
+  type: select
+  proxies:
+    - 延迟优选
+    - 故障转移
+    - DIRECT
+    - REJECT
+${代理配置}
+- name: 国内规则
+  type: select
+  proxies:
+    - DIRECT
+    - 延迟优选
+    - 故障转移
+    - REJECT
+${代理配置}
+- name: 广告屏蔽
+  type: select
+  proxies:
+    - REJECT
+    - DIRECT
+    - 延迟优选
+    - 故障转移
+${代理配置}
+- name: 延迟优选
+  type: url-test
+  url: https://www.google.com/generate_204
+  interval: 30
+  tolerance: 50
+  proxies:
+${代理配置}
+- name: 故障转移
+  type: fallback
+  url: https://www.google.com/generate_204
+  interval: 30
+  proxies:
+${代理配置}
+
+rules:
+  - GEOSITE,category-ads-all,广告屏蔽
+  - GEOSITE,cn,国内规则
+  - GEOIP,CN,国内规则,no-resolve
+  - MATCH,海外规则
+`;
+
+  return new Response(配置内容, {
+    status: 200,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+  });
+}
