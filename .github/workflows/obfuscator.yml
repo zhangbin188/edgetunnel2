@@ -22,7 +22,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"  # 使用较新版本的Node.js以获得更好的支持
+          node-version: "18"
 
       - name: 安装依赖
         run: npm install -g javascript-obfuscator
@@ -30,17 +30,17 @@ jobs:
       - name: 混淆代码
         run: |
           javascript-obfuscator src.js --output _worker.js \
-          --compact true \
-          --identifier-names-generator hexadecimal \  # 使用十六进制标识符，比mangled更难理解
-          --rename-globals true \
-          --rename-properties true \  # 混淆对象属性名
-          --rotate-string-array true \  # 随机打乱字符串数组
-          --self-defending true \  # 防止反混淆
-          --string-array true \  # 将字符串提取到数组中
-          --string-array-encoding base64 \  # 使用base64编码字符串
-          --string-array-threshold 1 \  # 所有字符串都进行处理
-          --split-strings true \  # 分割字符串
-          --split-strings-chunk-length 3  # 字符串分割长度
+            --compact true \
+            --identifier-names-generator hexadecimal \
+            --rename-globals true \
+            --rename-properties true \
+            --rotate-string-array true \
+            --self-defending true \
+            --string-array true \
+            --string-array-encoding base64 \
+            --string-array-threshold 1 \
+            --split-strings true \
+            --split-strings-chunk-length 3
 
       - name: 提交更改
         run: |
