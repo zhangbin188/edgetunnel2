@@ -34,7 +34,6 @@ jobs:
             --identifier-names-generator hexadecimal \
             --rename-globals true \
             --rename-properties true \
-            --rotate-string-array true \
             --self-defending true \
             --string-array true \
             --string-array-encoding base64 \
@@ -47,7 +46,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add _worker.js
-          git commit -m "自动混淆 - 增强变量名和常量名混淆" || echo "No changes to commit"
+          git commit -m "自动混淆" || echo "No changes to commit"
 
       - name: 上传更改
         uses: ad-m/github-push-action@master
