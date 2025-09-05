@@ -5,12 +5,8 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 ## 项目特点
 
 - **免费**：利用 Cloudflare Pages 免费托管
-- **简单**：Fork 即可使用, 无需复杂配置
 - **易用**：通过环境变量灵活配置
-- **高速**：依托 Cloudflare 全球网络加速
 - **兼容性强**：支持 v2ray 和 clash 客户端
-- **自动同步**：支持 GitHub Actions 自动同步上游仓库
-- **社区支持**：欢迎参与讨论和贡献代码
 
 > **欢迎各位大佬指正代码中存在的问题！**
 
@@ -53,14 +49,14 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 |-|-|-|
 | SUB_PATH | `订阅路径` | 域名/`订阅路径` |
 | TXT_URL | `https://raw.domain.com/CFST.txt` | 优选 IP 列表, 格式：`地址:端口#节点名称`, 端口默认 `443` |
-| NAT64 | `2a02:898:146:64::/96` | NAT64 |
+| NAT64 | `2a02:898:146:64::/96` | NAT64 前缀 |
 | DOH | `1.1.1.1` | DOH地址 |
 | PROXY_IP | `proxyip.cmliussss.net` | 反代地址和端口, 端口不填默认 `443` |
 
 ## 提醒
 
 - CloudFlare 明文禁止优选IP和使用CF Pages部署代理, 封号风险自己承担
-- 部分用户可能需要使用v2ray的分片功能才能正常上网, 给Pages绑定自定义域名也许可以解决
+- 建议定期同步上游仓库以获取最新功能和修复
 
 ## 感谢
 - [zizifn](https://github.com/zizifn) 原作者
