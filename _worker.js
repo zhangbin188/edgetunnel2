@@ -264,7 +264,7 @@ async function 提示界面() {
     text-align: center;
   }
 </style>
-<strong>请把链接导入 ${clash拆分_1}${clash拆分_2} 或 ${v2ray拆分_1}${v2ray拆分_2}</strong>
+<strong>请把链接导入 ${科拉什拆分_1}${科拉什拆分_2} 或 ${威图锐拆分_1}${威图锐拆分_2}</strong>
 `;
 
   return new Response(提示界面, {
