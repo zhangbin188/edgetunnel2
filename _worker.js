@@ -5,9 +5,9 @@ let 订阅路径 = "订阅路径";
 let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
-let 反代IP = ""//"proxyip.cmliussss.net";
-let NAT64前缀 = "2a01:4f9:c010:3f02::";
+let NAT64前缀 = "2a02:898:146:64::";
 let DOH地址 = "1.1.1.1";
+let 反代IP = ""//"proxyip.cmliussss.net";
 
 let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
