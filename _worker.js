@@ -42,6 +42,18 @@ export default {
         优选列表 = await 获取优选列表();
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
+      else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
+        const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
+        const 配置生成器 = {
+          [`${威图锐拆分_1}${威图锐拆分_2}`]: 威图锐配置文件,
+          [`${科拉什拆分_1}${科拉什拆分_2}`]: 科拉什配置文件,
+          "tips": 提示界面,
+        };
+        const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
+        优选列表 = await 获取优选列表();
+        const 生成配置 = 配置生成器[工具 || "tips"];
+        return 生成配置(访问请求.headers.get("Host"));
+      }
     }
 
     // 反代 无法访问CF CDN
@@ -243,6 +255,24 @@ function 处理优选列表(优选列表, hostName) {
 }
 
 // 订阅页面
+async function 提示界面() {
+  const 提示界面 = `
+<title>订阅-${订阅路径}</title>
+<style>
+  body {
+    font-size: 25px;
+    text-align: center;
+  }
+</style>
+<strong>请把链接导入 ${clash拆分_1}${clash拆分_2} 或 ${v2ray拆分_1}${v2ray拆分_2}</strong>
+`;
+
+  return new Response(提示界面, {
+    status: 200,
+    headers: { "Content-Type": "text/html;charset=utf-8" },
+  });
+}
+
 function 威图锐配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
