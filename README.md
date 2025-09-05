@@ -51,9 +51,11 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 
 | 变量名 | 示例值 | 说明 |
 |-|-|-|
-| `SUB_PATH` | `订阅路径` | 域名/`订阅路径` |
-| `TXT_URL` | `https://raw.domain.com/CFST.txt` | 优选 IP 列表, 格式：`地址:端口#节点名称`, 端口默认 443 |
-| `PROXY_IP` | `proxyip.cmliussss.net` | 反代地址和端口, 端口不填默认 443 |
+| SUB_PATH | `订阅路径` | 域名/`订阅路径` |
+| TXT_URL | `https://raw.domain.com/CFST.txt` | 优选 IP 列表, 格式：`地址:端口#节点名称`, 端口默认 `443` |
+| NAT64 | `2a02:898:146:64::/96` | NAT64 |
+| DOH | `1.1.1.1` | DOH地址 |
+| PROXY_IP | `proxyip.cmliussss.net` | 反代地址和端口, 端口不填默认 `443` |
 
 ## 提醒
 

@@ -7,7 +7,7 @@ let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/Aut
 let 优选列表 = [];
 let NAT64前缀 = "2a02:898:146:64::";
 let DOH地址 = "1.1.1.1";
-let 反代IP = ""//"proxyip.cmliussss.net";
+let 反代IP = "proxyip.cmliussss.net";
 
 let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
@@ -24,6 +24,8 @@ export default {
     订阅路径 = env.SUB_PATH ?? 订阅路径;
     验证UUID = 生成UUID();
     优选链接 = env.TXT_URL ?? 优选链接;
+    NAT64前缀 = env.NAT64 ?? NAT64前缀;
+    DOH地址 = env.DOH ?? DOH地址;
     反代IP = env.PROXY_IP ?? 反代IP;
 
     const url = new URL(访问请求.url);
