@@ -5,7 +5,9 @@ let 订阅路径 = "订阅路径";
 let 验证UUID;
 let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
 let 优选列表 = [];
-let 反代IP = "proxyip.cmliussss.net";
+let 反代IP = ""//"proxyip.cmliussss.net";
+let NAT64前缀 = "2a02:898:146:64::";
+let DOH地址 = "1.1.1.1";
 
 let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
@@ -99,7 +101,7 @@ function 使用64位加解密(还原混淆字符) {
   return 解密.buffer;
 }
 
-// 第二步，解读VL协议数据，创建TCP握手（直连->反代）
+// 第二步，解读VL协议数据，创建TCP握手（直连->NAT64->反代）
 async function 解析VL标头(VL数据, WS接口, TCP接口) {
   if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
     return null;
@@ -142,24 +144,79 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
   const 写入初始数据 = VL数据.slice(地址信息索引 + 地址长度);
 
   try {
-    // 尝试直接连接
+    // 第一步：尝试直连
     TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
     await TCP接口.opened;
   } catch {
-    try {
-      // 尝试通过反代连接
-      let [反代IP地址, 反代IP端口] = 反代IP.split(":");
-      TCP接口 = await connect({
-        hostname: 反代IP地址,
-        port: 反代IP端口 || 443,
-      });
-      await TCP接口.opened;
-    } catch {
-      return new Response("连接失败", { status: 502 });
+    // 直连失败，检查是否有NAT64前缀
+    if (NAT64前缀) {  // 假设存在NAT64前缀变量判断是否配置了NAT64
+      try {
+        // 第二步：尝试NAT64连接
+        const NAT64地址 = 识别地址类型 === 1
+          ? 转换IPv4到NAT64(访问地址)
+          : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
+        TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
+        await TCP接口.opened;
+      } catch {
+        // NAT64连接失败，检查是否有反代IP
+        if (反代IP) {  // 假设存在反代IP变量判断是否配置了反代
+          try {
+            // 第三步：尝试反代连接
+            let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+            TCP接口 = await connect({
+              hostname: 反代IP地址,
+              port: 反代IP端口 || 443,
+            });
+            await TCP接口.opened;
+          } catch {
+            // 所有连接方式都失败
+            return new Response("连接失败", { status: 502 });
+          }
+        } else {
+          // 没有反代IP，连接失败
+          return new Response("连接失败", { status: 502 });
+        }
+      }
+    } else {
+      // 没有NAT64前缀，检查是否有反代IP
+      if (反代IP) {
+        try {
+          // 第二步：尝试反代连接
+          let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+          TCP接口 = await connect({
+            hostname: 反代IP地址,
+            port: 反代IP端口 || 443,
+          });
+          await TCP接口.opened;
+        } catch {
+          // 反代连接也失败
+          return new Response("连接失败", { status: 502 });
+        }
+      } else {
+        // 没有配置任何备用连接方式，连接失败
+        return new Response("连接失败", { status: 502 });
+      }
     }
   }
-  
+
   建立传输管道(WS接口, TCP接口, 写入初始数据);
+}
+
+function 转换IPv4到NAT64(ipv4地址) {
+    // 移除前缀中的CIDR后缀
+    const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
+    // 拆分IPv4为四段并转换为十六进制
+    const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
+    // 组合前缀与IPv4十六进制表示
+    return `[${清理后的前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
+}
+
+// 解析域名到IPv4地址
+async function 解析域名到IPv4(域名) {
+  const { Answer } = await (await fetch(`https://${DOH地址}/dns-query?name=${域名}&type=A`, {
+    headers: { "Accept": "application/dns-json" }
+  })).json();
+  return Answer.find(({ type }) => type === 1).data;
 }
 
 function 验证VL的密钥(arr, offset = 0) {
