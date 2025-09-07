@@ -514,12 +514,11 @@ async function 获取优选列表() {
     for (let i = 0; i < 随机IP数量; i++) {
       const randomSegment = ipV6Segments[Math.floor(Math.random() * ipV6Segments.length)];
       const randomIp = 生成随机IPv6(randomSegment);
-      randomIps.push(`[${randomIp}]#随机IPv6 ${i + 1}`);
+      randomIps.push(`${randomIp}#随机IPv6 ${i + 1}`);
     }
 
     return [...原始列表, ...randomIps];
   } catch {
-    console.error("获取优选列表失败:", e);
     if (优选链接) {
       try {
         const 读取优选文本 = await fetch(优选链接);
@@ -541,7 +540,21 @@ function 处理优选列表(优选列表, hostName) {
   return 优选列表.map((获取优选, index) => {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
-    const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
+    // 修复端口提取逻辑，确保获取正确的端口号
+    let 端口 = 443; // 默认端口
+    if (拆分地址端口.length > 1) {
+      const 最后一段 = 拆分地址端口.pop();
+      if (!isNaN(最后一段)) {
+        端口 = Number(最后一段);
+        // 确保端口在有效范围内
+        if (端口 < 1 || 端口 > 65535) {
+          端口 = 443;
+        }
+      } else {
+        // 如果最后一段不是数字，说明是IPv6地址的一部分，重新加入
+        拆分地址端口.push(最后一段);
+      }
+    }
     const 地址 = 拆分地址端口.join(":").replace(/^\[(.*)\]$/, "$1"); // 移除IPv6地址的方括号
 
     const 是否IPv6 = 地址.includes(':');
