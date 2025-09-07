@@ -9,6 +9,7 @@ let 优选列表 = [];
 let NAT64前缀 = "2a02:898:146:64::";
 let DOH地址 = "1.1.1.1";
 let 反代IP = "proxyip.cmliussss.net";
+let 随机IP数量 = 10;
 
 let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
@@ -29,6 +30,7 @@ export default {
     DOH地址 = env.DOH ?? DOH地址;
     反代IP = env.PROXY_IP ?? 反代IP;
     伪装网页 = env.FAKE_WEB;
+    随机IP数量 = env.RANDOM_IP ?? 随机IP数量;
 
     const url = new URL(访问请求.url);
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade");
@@ -333,16 +335,100 @@ function 生成UUID() {
   return `${前八位}-0000-4000-8000-${后十二位}`;
 }
 
-async function 获取优选列表() {
-  if (优选链接) {
-    const 读取优选文本 = await fetch(优选链接);
-    const 转换优选文本 = await 读取优选文本.text();
-    return 转换优选文本
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line);
+function 生成随机IP(cidr) {
+  const [ip, prefixLength] = cidr.split("/");
+  const ipParts = ip.split(".").map(Number);
+  
+  // 计算子网掩码
+  const mask = [];
+  for (let i = 0; i < 4; i++) {
+    if (prefixLength >= (i + 1) * 8) {
+      mask[i] = 255;
+    } else if (prefixLength < i * 8) {
+      mask[i] = 0;
+    } else {
+      const bits = prefixLength - i * 8;
+      mask[i] = (0xff << (8 - bits)) & 0xff;
+    }
   }
-  return [];
+  
+  // 计算网络地址
+  const network = [];
+  for (let i = 0; i < 4; i++) {
+    network[i] = ipParts[i] & mask[i];
+  }
+  
+  // 计算主机位数量
+  const hostBits = 32 - parseInt(prefixLength);
+  
+  // 生成随机主机位
+  let randomHost = 0;
+  for (let i = 0; i < hostBits; i++) {
+    randomHost |= (Math.random() > 0.5 ? 1 : 0) << i;
+  }
+  
+  // 确保不是网络地址或广播地址
+  if (hostBits > 0) {
+    randomHost = Math.max(1, Math.min(randomHost, (1 << hostBits) - 2));
+  }
+  
+  // 将随机主机位转换为IP的四个部分
+  const ipBytes = new Uint8Array(4);
+  ipBytes[0] = (randomHost >> 24) & 0xff;
+  ipBytes[1] = (randomHost >> 16) & 0xff;
+  ipBytes[2] = (randomHost >> 8) & 0xff;
+  ipBytes[3] = randomHost & 0xff;
+  
+  // 计算最终IP
+  const result = [];
+  for (let i = 0; i < 4; i++) {
+    result[i] = network[i] | ipBytes[i];
+  }
+  
+  return result.join(".");
+}
+
+async function 获取优选列表() {
+  try {
+    let 原始列表 = [];
+    if (优选链接) {
+      const 读取优选文本 = await fetch(优选链接);
+      const 转换优选文本 = await 读取优选文本.text();
+      原始列表 = 转换优选文本
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line);
+    }
+
+    const cfIpResponse = await fetch("https://www.cloudflare-cn.com/ips-v4/");
+    const cfIpText = await cfIpResponse.text();
+    const ipSegments = cfIpText
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line && line.includes("/"));
+
+    const randomIps = [];
+    for (let i = 0; i < 随机IP数量; i++) {
+      // 随机选择一个IP段
+      const randomSegment = ipSegments[Math.floor(Math.random() * ipSegments.length)];
+      // 从该段生成一个随机IP
+      const randomIp = 生成随机IP(randomSegment);
+      // 添加到列表，格式为 "IP#随机IP n"
+      randomIps.push(`${randomIp}:443#随机IP ${i + 1}`);
+    }
+
+    return [...原始列表, ...randomIps];
+  } catch {
+    if (优选链接) {
+      const 读取优选文本 = await fetch(优选链接);
+      const 转换优选文本 = await 读取优选文本.text();
+      return 转换优选文本
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line);
+    }
+    return [];
+  }
 }
 
 function 处理优选列表(优选列表, hostName) {
