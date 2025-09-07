@@ -542,6 +542,7 @@ function 处理优选列表(优选列表, hostName) {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
     const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
+    const 地址 = 拆分地址端口.join(":").replace(/^\[(.*)\]$/, "$1"); // 移除IPv6地址的方括号
     return { 地址, 端口, 节点名字 };
   });
 }
