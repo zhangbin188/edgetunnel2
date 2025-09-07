@@ -41,8 +41,11 @@ export default {
 
     if (伪装网页 && 不是WS请求 && url.pathname === "/") {
       try {
+        const targetBase = FAKE_WEB.startsWith('http://') || FAKE_WEB.startsWith('https://') 
+          ? FAKE_WEB 
+          : `https://${FAKE_WEB}`;
         // 构建目标URL
-        const targetUrl = new URL(FAKE_WEB);
+        const targetUrl = new URL(targetBase);
         // 保留原请求的路径和查询参数
         targetUrl.pathname = url.pathname;
         targetUrl.search = url.search;
