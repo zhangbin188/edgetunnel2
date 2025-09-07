@@ -335,7 +335,7 @@ function 生成UUID() {
   return `${前八位}-0000-4000-8000-${后十二位}`;
 }
 
-function 生成随机IPv4(cidr) {
+function 生成随机IP(cidr) {
   const [ip, prefixLength] = cidr.split("/");
   const ipParts = ip.split(".").map(Number);
   
@@ -388,91 +388,6 @@ function 生成随机IPv4(cidr) {
   return result.join(".");
 }
 
-function 生成随机IPv6(cidr) {
-  const [ip, prefixLength] = cidr.split("/");
-  const prefixLengthNum = parseInt(prefixLength);
-  
-  // 将IPv6地址拆分为8个16位段
-  let segments = ip.split(":").map(seg => seg === "" ? 0 : parseInt(seg, 16));
-  
-  // 处理压缩的::
-  if (segments.length < 8) {
-    const emptyIndex = segments.indexOf(0);
-    if (emptyIndex !== -1) {
-      segments = [
-        ...segments.slice(0, emptyIndex),
-        ...Array(8 - segments.length).fill(0),
-        ...segments.slice(emptyIndex + 1)
-      ];
-    }
-  }
-  
-  // 计算网络前缀
-  const networkSegments = [...segments];
-  const prefixFullSegments = Math.floor(prefixLengthNum / 16);
-  const prefixBitsInPartial = prefixLengthNum % 16;
-  
-  // 处理部分匹配的段
-  if (prefixBitsInPartial > 0) {
-    const mask = 0xffff << (16 - prefixBitsInPartial);
-    networkSegments[prefixFullSegments] &= mask;
-  }
-  
-  // 生成随机主机位
-  const randomSegments = [...networkSegments];
-  for (let i = prefixFullSegments; i < 8; i++) {
-    let bitsToRandomize = 16;
-    if (i === prefixFullSegments && prefixBitsInPartial > 0) {
-      bitsToRandomize = 16 - prefixBitsInPartial;
-    }
-    
-    if (bitsToRandomize > 0) {
-      const mask = (1 << bitsToRandomize) - 1;
-      const random = Math.floor(Math.random() * (1 << bitsToRandomize));
-      randomSegments[i] |= random;
-    }
-  }
-  
-  // 转换为十六进制字符串并格式化为IPv6地址
-  const hexSegments = randomSegments.map(seg => seg.toString(16));
-  
-  // 尝试压缩最长的连续零段
-  let maxZeroRun = 0;
-  let maxZeroStart = 0;
-  let currentZeroRun = 0;
-  let currentZeroStart = 0;
-  
-  for (let i = 0; i < hexSegments.length; i++) {
-    if (hexSegments[i] === '0') {
-      if (currentZeroRun === 0) {
-        currentZeroStart = i;
-      }
-      currentZeroRun++;
-      if (currentZeroRun > maxZeroRun) {
-        maxZeroRun = currentZeroRun;
-        maxZeroStart = currentZeroStart;
-      }
-    } else {
-      currentZeroRun = 0;
-    }
-  }
-  
-  // 只压缩长度大于1的零段
-  if (maxZeroRun > 1) {
-    const compressed = [
-      ...hexSegments.slice(0, maxZeroStart),
-      '',
-      ...hexSegments.slice(maxZeroStart + maxZeroRun)
-    ];
-    // 处理开头或结尾的零段
-    if (compressed[0] === '') compressed.unshift('');
-    if (compressed[compressed.length - 1] === '') compressed.push('');
-    return compressed.join(':');
-  }
-  
-  return hexSegments.join(':');
-}
-
 async function 获取优选列表() {
   try {
     let 原始列表 = [];
@@ -485,51 +400,32 @@ async function 获取优选列表() {
         .filter((line) => line);
     }
 
-    // 获取Cloudflare IPv4地址段并生成随机IP
-    const cfIpV4Response = await fetch("https://www.cloudflare-cn.com/ips-v4/");
-    const cfIpV4Text = await cfIpV4Response.text();
-    const ipV4Segments = cfIpV4Text
-      .split("\n")
-      .map(line => line.trim())
-      .filter(line => line && line.includes("/"));
-
-    // 获取Cloudflare IPv6地址段并生成随机IP
-    const cfIpV6Response = await fetch("https://www.cloudflare-cn.com/ips-v6/");
-    const cfIpV6Text = await cfIpV6Response.text();
-    const ipV6Segments = cfIpV6Text
+    const cfIpResponse = await fetch("https://www.cloudflare-cn.com/ips-v4/");
+    const cfIpText = await cfIpResponse.text();
+    const ipSegments = cfIpText
       .split("\n")
       .map(line => line.trim())
       .filter(line => line && line.includes("/"));
 
     const randomIps = [];
-    
-    // 生成随机IPv4地址
     for (let i = 0; i < 随机IP数量; i++) {
-      const randomSegment = ipV4Segments[Math.floor(Math.random() * ipV4Segments.length)];
-      const randomIp = 生成随机IPv4(randomSegment);
-      randomIps.push(`${randomIp}#随机IPv4 ${i + 1}`);
-    }
-    
-    // 生成随机IPv6地址
-    for (let i = 0; i < 随机IP数量; i++) {
-      const randomSegment = ipV6Segments[Math.floor(Math.random() * ipV6Segments.length)];
-      const randomIp = 生成随机IPv6(randomSegment);
-      randomIps.push(`${randomIp}#随机IPv6 ${i + 1}`);
+      // 随机选择一个IP段
+      const randomSegment = ipSegments[Math.floor(Math.random() * ipSegments.length)];
+      // 从该段生成一个随机IP
+      const randomIp = 生成随机IP(randomSegment);
+      // 添加到列表，格式为 "IP#随机IP n"
+      randomIps.push(`${randomIp}:443#随机IP ${i + 1}`);
     }
 
     return [...原始列表, ...randomIps];
   } catch {
     if (优选链接) {
-      try {
-        const 读取优选文本 = await fetch(优选链接);
-        const 转换优选文本 = await 读取优选文本.text();
-        return 转换优选文本
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line);
-      } catch (e) {
-        console.error("获取优选链接失败:", e);
-      }
+      const 读取优选文本 = await fetch(优选链接);
+      const 转换优选文本 = await 读取优选文本.text();
+      return 转换优选文本
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line);
     }
     return [];
   }
@@ -540,25 +436,9 @@ function 处理优选列表(优选列表, hostName) {
   return 优选列表.map((获取优选, index) => {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
-    // 修复端口提取逻辑，确保获取正确的端口号
-    let 端口 = 443; // 默认端口
-    if (拆分地址端口.length > 1) {
-      const 最后一段 = 拆分地址端口.pop();
-      if (!isNaN(最后一段)) {
-        端口 = Number(最后一段);
-        // 确保端口在有效范围内
-        if (端口 < 1 || 端口 > 65535) {
-          端口 = 443;
-        }
-      } else {
-        // 如果最后一段不是数字，说明是IPv6地址的一部分，重新加入
-        拆分地址端口.push(最后一段);
-      }
-    }
-    const 地址 = 拆分地址端口.join(":").replace(/^\[(.*)\]$/, "$1"); // 移除IPv6地址的方括号
-
-    const 是否IPv6 = 地址.includes(':');
-    return { 地址, 端口, 节点名字, 是否IPv6 };
+    const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
+    const 地址 = 拆分地址端口.join(":");
+    return { 地址, 端口, 节点名字 };
   });
 }
 
@@ -584,9 +464,8 @@ async function 提示界面() {
 function 威图锐配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
-    .map(({ 地址, 端口, 节点名字, 是否IPv6 }) => {
-      const formattedAddress = 是否IPv6 ? `[${地址}]` : 地址;
-      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${formattedAddress}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+    .map(({ 地址, 端口, 节点名字 }) => {
+      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
     })
     .join("\n");
 
