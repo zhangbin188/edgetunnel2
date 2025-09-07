@@ -38,48 +38,61 @@ export default {
     const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐拆分_1}${威图锐拆分_2}`;
     const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什拆分_1}${科拉什拆分_2}`;
     const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
+ 
+    // 判断是否为订阅相关路径
+    const 是订阅路径 = url.pathname === 威图锐路径 || 
+                        url.pathname === 科拉什路径 || 
+                        url.pathname === `/${encodeURIComponent(订阅路径)}` ||
+                        url.pathname.startsWith(反代前缀);
 
-    if (伪装网页 && 不是WS请求 && url.pathname === "/") {
-      try {
-        const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://') 
-          ? 伪装网页 
-          : `https://${伪装网页}`;
-        // 构建目标URL
-        const targetUrl = new URL(targetBase);
-        // 保留原请求的路径和查询参数
-        targetUrl.pathname = url.pathname;
-        targetUrl.search = url.search;
-        
-        // 创建反代请求
-        const 反代请求 = new Request(targetUrl.toString(), {
-          method: 访问请求.method,
-          headers: new Headers(访问请求.headers),
-          body: 访问请求.body,
-          redirect: "follow"
-        });
-        
-        // 添加必要的 headers 以确保反代正常工作
-        反代请求.headers.set("Host", targetUrl.host);
-        反代请求.headers.set("Referer", targetUrl.origin);
-        
-        // 发送反代请求并返回响应
-        const 反代响应 = await fetch(反代请求);
-        
-        // 复制响应并移除可能导致问题的 headers
-        const 响应头 = new Headers(反代响应.headers);
-        响应头.delete("Content-Security-Policy");
-        响应头.delete("X-Frame-Options");
-        
-        return new Response(反代响应.body, {
-          status: 反代响应.status,
-          statusText: 反代响应.statusText,
-          headers: 响应头
-        });
-      } catch {
+    // 处理非订阅路径的访问
+    if (不是WS请求 && !是订阅路径) {
+      if (伪装网页) {
+        try {
+          // 构建目标URL：FAKE_WEB + 当前路径
+          const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://') 
+            ? 伪装网页 
+            : `https://${伪装网页}`;
+          
+          const targetUrl = new URL(targetBase);
+          targetUrl.pathname = url.pathname;  // 使用当前请求的路径
+          targetUrl.search = url.search;      // 保留查询参数
+          
+          // 创建反代请求
+          const 反代请求 = new Request(targetUrl.toString(), {
+            method: 访问请求.method,
+            headers: new Headers(访问请求.headers),
+            body: 访问请求.body,
+            redirect: "follow"
+          });
+          
+          // 添加必要的 headers 以确保反代正常工作
+          反代请求.headers.set("Host", targetUrl.host);
+          反代请求.headers.set("Referer", targetUrl.origin);
+          
+          // 发送反代请求并返回响应
+          const 反代响应 = await fetch(反代请求);
+          
+          // 复制响应并移除可能导致问题的 headers
+          const 响应头 = new Headers(反代响应.headers);
+          响应头.delete("Content-Security-Policy");
+          响应头.delete("X-Frame-Options");
+          
+          return new Response(反代响应.body, {
+            status: 反代响应.status,
+            statusText: 反代响应.statusText,
+            headers: 响应头
+          });
+        } catch {
+          return new Response(null, { status: 404 });
+        }
+      } else {
+        // 没有设置伪装网页，返回404
         return new Response(null, { status: 404 });
       }
     }
 
+    // 处理订阅相关路径的访问
     if (不是WS请求) {
       if (url.pathname === 威图锐路径) {
         优选列表 = await 获取优选列表();
