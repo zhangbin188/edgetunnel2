@@ -543,7 +543,9 @@ function 处理优选列表(优选列表, hostName) {
     const 拆分地址端口 = 地址端口.split(":");
     const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
     const 地址 = 拆分地址端口.join(":").replace(/^\[(.*)\]$/, "$1"); // 移除IPv6地址的方括号
-    return { 地址, 端口, 节点名字 };
+
+    const 是否IPv6 = 地址.includes(':');
+    return { 地址, 端口, 节点名字, 是否IPv6 };
   });
 }
 
@@ -569,8 +571,9 @@ async function 提示界面() {
 function 威图锐配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
-    .map(({ 地址, 端口, 节点名字 }) => {
-      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+    .map(({ 地址, 端口, 节点名字, 是否IPv6 }) => {
+      const formattedAddress = 是否IPv6 ? `[${地址}]` : 地址;
+      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${formattedAddress}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
     })
     .join("\n");
 
