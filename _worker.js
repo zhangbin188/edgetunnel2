@@ -507,18 +507,18 @@ async function 获取优选列表() {
     for (let i = 0; i < 随机IP数量; i++) {
       const randomSegment = ipV4Segments[Math.floor(Math.random() * ipV4Segments.length)];
       const randomIp = 生成随机IPv4(randomSegment);
-      randomIps.push(`${randomIp}:443#随机IPv4 ${i + 1}`);
+      randomIps.push(`${randomIp}#随机IPv4 ${i + 1}`);
     }
     
     // 生成随机IPv6地址
     for (let i = 0; i < 随机IP数量; i++) {
       const randomSegment = ipV6Segments[Math.floor(Math.random() * ipV6Segments.length)];
       const randomIp = 生成随机IPv6(randomSegment);
-      randomIps.push(`[${randomIp}]:443#随机IPv6 ${i + 1}`);
+      randomIps.push(`[${randomIp}]#随机IPv6 ${i + 1}`);
     }
 
     return [...原始列表, ...randomIps];
-  } catch (e) {
+  } catch {
     console.error("获取优选列表失败:", e);
     if (优选链接) {
       try {
@@ -542,7 +542,6 @@ function 处理优选列表(优选列表, hostName) {
     const [地址端口, 节点名字 = `节点 ${index + 1}`] = 获取优选.split("#");
     const 拆分地址端口 = 地址端口.split(":");
     const 端口 = 拆分地址端口.length > 1 ? Number(拆分地址端口.pop()) : 443;
-    const 地址 = 拆分地址端口.join(":").replace(/^\[(.*)\]$/, "$1"); // 移除IPv6地址的方括号
     return { 地址, 端口, 节点名字 };
   });
 }
