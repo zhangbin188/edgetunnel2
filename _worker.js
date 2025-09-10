@@ -46,7 +46,7 @@ export default {
                         url.pathname === `/${encodeURIComponent(订阅路径)}` ||
                         url.pathname.startsWith(反代前缀);
 
-    // 处理非订阅路径的访问 - 直接获取页面内容而非反代
+    // 处理非订阅路径的访问 - 改为直接fetch页面内容呈现
     if (不是WS请求 && !是订阅路径) {
       if (伪装网页) {
         try {
@@ -59,23 +59,23 @@ export default {
           targetUrl.pathname = url.pathname;  // 使用当前请求的路径
           targetUrl.search = url.search;      // 保留查询参数
           
-          // 直接获取目标页面内容（不修改请求头，非反代模式）
-          const 页面响应 = await fetch(targetUrl.toString(), {
+          // 创建请求（不设置任何自定义头，不传递客户端头信息）
+          const fetchRequest = new Request(targetUrl.toString(), {
             method: 访问请求.method,
-            headers: new Headers(),
+            headers: new Headers(),  // 空headers
             body: 访问请求.body,
             redirect: "follow"
           });
           
-          // 直接返回获取到的内容（保留原始响应头）
-          const 响应头 = new Headers(页面响应.headers);
-          // 移除可能导致问题的安全头
-          响应头.delete("Content-Security-Policy");
-          响应头.delete("X-Frame-Options");
+          // 发送请求并返回响应
+          const fetchResponse = await fetch(fetchRequest);
           
-          return new Response(页面响应.body, {
-            status: 页面响应.status,
-            statusText: 页面响应.statusText,
+          // 复制原始响应头（不移除安全头）
+          const 响应头 = new Headers(fetchResponse.headers);
+          
+          return new Response(fetchResponse.body, {
+            status: fetchResponse.status,
+            statusText: fetchResponse.statusText,
             headers: 响应头
           });
         } catch {
