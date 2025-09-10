@@ -62,11 +62,7 @@ export default {
           // 直接获取目标页面内容（不修改请求头，非反代模式）
           const 页面响应 = await fetch(targetUrl.toString(), {
             method: 访问请求.method,
-            headers: {
-              // 保留基本请求头但不模拟反代
-              "User-Agent": 访问请求.headers.get("User-Agent") || "Chrome",
-              "Accept": 访问请求.headers.get("Accept") || "*/*"
-            },
+            headers: new Headers(),
             body: 访问请求.body,
             redirect: "follow"
           });
