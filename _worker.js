@@ -131,32 +131,26 @@ export default {
     }
 
     if (WS请求) {
-      return await 升级WS请求(访问请求);
+      return 升级WS请求();
     }
   },
 };
 
 // 脚本主要架构
 // 第一步，读取和构建基础访问结构
-async function 升级WS请求(访问请求) {
-  const [客户端, WS接口] = new WebSocketPair(); //创建WS接口对象
-  const 读取我的加密访问内容数据头 = 访问请求.headers.get('sec-websocket-protocol'); //读取访问标头中的WS通信数据
-  const 解密数据 = 使用64位加解密(读取我的加密访问内容数据头); //解密目标访问数据，传递给TCP握手进程
-  await 解析VL标头(解密数据, WS接口); //解析VL数据并进行TCP握手
-  return new Response(null, { status: 101, webSocket: 客户端 }); //一切准备就绪后，回复客户端WS连接升级成功
-}
-
-function 使用64位加解密(还原混淆字符) {
-  还原混淆字符 = 还原混淆字符.replace(/-/g, "+").replace(/_/g, "/");
-  const 解密数据 = atob(还原混淆字符);
-  const 解密 = Uint8Array.from(解密数据, (c) => c.charCodeAt(0));
-  return 解密.buffer;
+async function 升级WS请求() {
+  const 创建WS接口 = new WebSocketPair();
+  const [客户端, WS接口] = Object.values(创建WS接口);
+  WS接口.accept();
+  WS接口.send(new Uint8Array([0, 0]));
+  WS接口.addEventListener("message", (event) => 解析VL标头(event.data, WS接口));
+  return new Response(null, { status: 101, webSocket: 客户端 });
 }
 
 // 第二步，解读VL协议数据，创建TCP握手（直连->NAT64->反代）
 async function 解析VL标头(VL数据, WS接口, TCP接口) {
   if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
-    return null;
+    return new Response(null, { status: 400 });
   }
 
   const 获取数据定位 = new Uint8Array(VL数据)[17];
@@ -304,24 +298,27 @@ for (let i = 0; i < 256; ++i) {
 
 // 第三步，创建客户端WS-CF-目标的传输通道并监听状态
 async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
-  WS接口.accept();
-  await WS接口.send(new Uint8Array([0, 0]).buffer);
-
   const 传输数据 = TCP接口.writable.getWriter();
-  const 读取数据 = TCP接口.readable.getReader();
-
-  if (写入初始数据) await 传输数据.write(写入初始数据);
-
-  WS接口.addEventListener("message", async (event) => {
-    await 传输数据.write(event.data);
+  const 数据流 = new ReadableStream({
+    async start(控制器) {
+      控制器.enqueue(写入初始数据);
+      WS接口.addEventListener("message", (event) => 控制器.enqueue(event.data));
+    },
   });
-  (async () => {
-    while (true) {
-      const { value: 返回数据, done } = await 读取数据.read();
-      if (done) break;
-      if (返回数据) await WS接口.send(返回数据);
-    }
-  })();
+  数据流.pipeTo(
+    new WritableStream({
+      async write(VL数据) {
+        传输数据.write(VL数据);
+      },
+    })
+  );
+  TCP接口.readable.pipeTo(
+    new WritableStream({
+      async write(VL数据) {
+        WS接口.send(VL数据);
+      },
+    })
+  );
 }
 
 // 其它
@@ -470,7 +467,7 @@ function 威图锐配置文件(hostName) {
   const 节点列表 = 处理优选列表(优选列表, hostName);
   const 配置内容 = 节点列表
     .map(({ 地址, 端口, 节点名字 }) => {
-      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=${encodeURIComponent("/?ed=2560")}#${节点名字}`;
+      return `${维列斯拆分_1}${维列斯拆分_2}://${验证UUID}@${地址}:${端口}?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}#${节点名字}`;
     })
     .join("\n");
 
@@ -495,7 +492,6 @@ function 科拉什配置文件(hostName) {
   sni: ${hostName}
   network: ws
   ws-opts:
-    path: "/?ed=2560"
     headers:
       Host: ${hostName}
       User-Agent: Chrome`,
