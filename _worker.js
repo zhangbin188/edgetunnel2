@@ -116,6 +116,12 @@ export default {
     // 反代 无法访问CF CDN
     if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
+  
+      // 处理未填写协议的情况，默认使用https://
+      if (!target.startsWith('http://') && !target.startsWith('https://')) {
+        target = 'https://' + target;
+      }
+  
       try {
           const 请求对象 = new Request(target + url.search, {
             method: 访问请求.method,
