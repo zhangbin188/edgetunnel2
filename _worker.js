@@ -49,43 +49,30 @@ export default {
                       url.pathname === `/${encodeURIComponent(订阅路径)}` ||
                       url.pathname.startsWith(反代前缀);
 
-    // 处理非订阅路径的访问 - 改为直接fetch页面内容呈现
     if (不是WS请求 && !是正确路径) {
       if (伪装网页) {
         try {
-          // 构建目标URL：FAKE_WEB + 当前路径
           const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://') 
             ? 伪装网页 
             : `https://${伪装网页}`;
           
           const targetUrl = new URL(targetBase);
-          targetUrl.pathname = url.pathname;  // 使用当前请求的路径
-          targetUrl.search = url.search;      // 保留查询参数
-          
-          // 创建请求（不设置任何自定义头，不传递客户端头信息）
-          const fetchRequest = new Request(targetUrl.toString(), {
+          targetUrl.pathname = url.pathname;
+          targetUrl.search = url.search;
+
+          const 请求对象 = new Request(targetUrl.toString(), {
             method: 访问请求.method,
-            headers: new Headers(),  // 空headers
+            headers: 访问请求.headers,
             body: 访问请求.body,
             redirect: "follow"
           });
-          
-          // 发送请求并返回响应
-          const fetchResponse = await fetch(fetchRequest);
-          
-          // 复制原始响应头（不移除安全头）
-          const 响应头 = new Headers(fetchResponse.headers);
-          
-          return new Response(fetchResponse.body, {
-            status: fetchResponse.status,
-            statusText: fetchResponse.statusText,
-            headers: 响应头
-          });
+
+          const 响应对象 = await fetch(请求对象);
+          return 响应对象;
         } catch {
           return new Response(null, { status: 404 });
         }
       } else {
-        // 没有设置伪装网页，返回404
         return new Response(null, { status: 404 });
       }
     }
