@@ -64,7 +64,6 @@ export default {
             method: 访问请求.method,
             headers: 访问请求.headers,
             body: 访问请求.body,
-            redirect: "follow"
           });
 
           const 响应对象 = await fetch(请求对象);
