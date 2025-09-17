@@ -126,7 +126,7 @@ export default {
     }
 
     if (WS请求) {
-      return 升级WS请求();
+      return await 升级WS请求();
     }
   },
 };
