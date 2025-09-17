@@ -13,15 +13,15 @@ let 随机IP数量 = 10;
 
 let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
-let 威图锐 = 威图锐拆分_1+威图锐拆分_2;
+let 威图锐 = 威图锐拆分_1 + 威图锐拆分_2;
 
 let 维列斯拆分_1 = "vl";
 let 维列斯拆分_2 = "ess";
-let 维列斯 = 维列斯拆分_1+维列斯拆分_2;
+let 维列斯 = 维列斯拆分_1 + 维列斯拆分_2;
 
 let 科拉什拆分_1 = "cla";
 let 科拉什拆分_2 = "sh";
-let 科拉什 = 科拉什拆分_1+科拉什拆分_2;
+let 科拉什 = 科拉什拆分_1 + 科拉什拆分_2;
 
 // 网页入口
 export default {
@@ -52,10 +52,10 @@ export default {
     if (不是WS请求 && !是正确路径) {
       if (伪装网页) {
         try {
-          const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://') 
-            ? 伪装网页 
+          const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://')
+            ? 伪装网页
             : `https://${伪装网页}`;
-          
+
           const targetUrl = new URL(targetBase);
           targetUrl.pathname = url.pathname;
           targetUrl.search = url.search;
@@ -102,12 +102,12 @@ export default {
     // 反代 无法访问CF CDN
     if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
-  
+
       // 处理未填写协议的情况，默认使用https://
       if (!target.startsWith('http://') && !target.startsWith('https://')) {
         target = 'https://' + target;
       }
-  
+
       try {
           const 请求对象 = new Request(target + url.search, {
             method: 访问请求.method,
@@ -132,77 +132,109 @@ export default {
 };
 
 // 脚本主要架构
-// 第一步，读取和构建基础访问结构
 async function 升级WS请求() {
   const 创建WS接口 = new WebSocketPair();
   const [客户端, WS接口] = Object.values(创建WS接口);
   WS接口.accept();
   WS接口.send(new Uint8Array([0, 0]));
-  WS接口.addEventListener("message", (event) => 解析VL标头(event.data, WS接口));
+  启动传输管道(WS接口);
   return new Response(null, { status: 101, webSocket: 客户端 });
 }
 
-// 第二步，解读VL协议数据，创建TCP握手（直连->NAT64->反代）
-async function 解析VL标头(VL数据, WS接口, TCP接口) {
-  if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
-    return new Response(null, { status: 400 });
-  }
+async function 启动传输管道(WS接口) {
+  let TCP接口,
+    首包数据 = false,
+    首包处理完成 = null,
+    传输数据;
+  WS接口.addEventListener("message", async (event) => {
+    if (!首包数据) {
+      首包数据 = true;
+      首包处理完成 = 解析VL标头(event.data);
+      await 首包处理完成;
+    } else {
+      await 首包处理完成;
+      await 传输数据.write(event.data);
+    }
+  });
 
-  const 获取数据定位 = new Uint8Array(VL数据)[17];
-  const 提取端口索引 = 18 + 获取数据定位 + 1;
-  const 建立端口缓存 = VL数据.slice(提取端口索引, 提取端口索引 + 2);
-  const 访问端口 = new DataView(建立端口缓存).getUint16(0);
+  async function 解析VL标头(VL数据) {
+    if (验证VL的密钥(new Uint8Array(VL数据.slice(1, 17))) !== 验证UUID) {
+      return new Response(null, { status: 400 });
+    }
 
-  const 提取地址索引 = 提取端口索引 + 2;
-  const 建立地址缓存 = new Uint8Array(VL数据.slice(提取地址索引, 提取地址索引 + 1));
-  const 识别地址类型 = 建立地址缓存[0];
+    const 获取数据定位 = new Uint8Array(VL数据)[17];
+    const 提取端口索引 = 18 + 获取数据定位 + 1;
+    const 建立端口缓存 = VL数据.slice(提取端口索引, 提取端口索引 + 2);
+    const 访问端口 = new DataView(建立端口缓存).getUint16(0);
 
-  let 地址长度 = 0;
-  let 访问地址 = "";
-  let 地址信息索引 = 提取地址索引 + 1;
+    const 提取地址索引 = 提取端口索引 + 2;
+    const 建立地址缓存 = new Uint8Array(VL数据.slice(提取地址索引, 提取地址索引 + 1));
+    const 识别地址类型 = 建立地址缓存[0];
 
-  switch (识别地址类型) {
-    case 1:
-      地址长度 = 4;
-      访问地址 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度)).join(".");
-      break;
-    case 2:
-      地址长度 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 1))[0];
-      地址信息索引 += 1;
-      访问地址 = new TextDecoder().decode(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
-      break;
-    case 3:
-      地址长度 = 16;
-      const dataView = new DataView(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
-      const ipv6 = [];
-      for (let i = 0; i < 8; i++) {
-        ipv6.push(dataView.getUint16(i * 2).toString(16));
-      }
-      访问地址 = ipv6.join(":");
-      break;
-  }
+    let 地址长度 = 0;
+    let 访问地址 = "";
+    let 地址信息索引 = 提取地址索引 + 1;
 
-  const 写入初始数据 = VL数据.slice(地址信息索引 + 地址长度);
+    switch (识别地址类型) {
+      case 1:
+        地址长度 = 4;
+        访问地址 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度)).join(".");
+        break;
+      case 2:
+        地址长度 = new Uint8Array(VL数据.slice(地址信息索引, 地址信息索引 + 1))[0];
+        地址信息索引 += 1;
+        访问地址 = new TextDecoder().decode(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
+        break;
+      case 3:
+        地址长度 = 16;
+        const dataView = new DataView(VL数据.slice(地址信息索引, 地址信息索引 + 地址长度));
+        const ipv6 = [];
+        for (let i = 0; i < 8; i++) {
+          ipv6.push(dataView.getUint16(i * 2).toString(16));
+        }
+        访问地址 = ipv6.join(":");
+        break;
+      default:
+        return new Response(null, { status: 400 });
+    }
 
-  try {
-    // 第一步：尝试直连
-    TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
-    await TCP接口.opened;
-  } catch {
-    // 直连失败，检查是否有NAT64前缀
-    if (NAT64前缀) {  // 假设存在NAT64前缀变量判断是否配置了NAT64
-      try {
-        // 第二步：尝试NAT64连接
-        const NAT64地址 = 识别地址类型 === 1
-          ? 转换IPv4到NAT64(访问地址)
-          : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
-        TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
-        await TCP接口.opened;
-      } catch {
-        // NAT64连接失败，检查是否有反代IP
-        if (反代IP) {  // 假设存在反代IP变量判断是否配置了反代
+    const 写入初始数据 = VL数据.slice(地址信息索引 + 地址长度);
+
+    try {
+      // 第一步：尝试直连
+      TCP接口 = await connect({ hostname: 访问地址, port: 访问端口, allowHalfOpen: true });
+      await TCP接口.opened;
+    } catch {
+      // 直连失败，检查是否有NAT64前缀
+      if (NAT64前缀) {
+        try {
+          // 第二步：尝试NAT64连接
+          const NAT64地址 = 识别地址类型 === 1
+            ? 转换IPv4到NAT64(访问地址)
+            : 转换IPv4到NAT64(await 解析域名到IPv4(访问地址));
+          TCP接口 = await connect({ hostname: NAT64地址, port: 访问端口 });
+          await TCP接口.opened;
+        } catch {
+          // NAT64连接失败，使用反代
+          if (反代IP) {
+            try {
+              let [反代IP地址, 反代IP端口] = 反代IP.split(":");
+              TCP接口 = await connect({
+                hostname: 反代IP地址,
+                port: 反代IP端口 || 443,
+              });
+              await TCP接口.opened;
+            } catch {
+              return new Response("连接失败", { status: 502 });
+            }
+          } else {
+            return new Response("连接失败", { status: 502 });
+          }
+        }
+      } else {
+        // 没有NAT64前缀，尝试反代连接
+        if (反代IP) {
           try {
-            // 第三步：尝试反代连接
             let [反代IP地址, 反代IP端口] = 反代IP.split(":");
             TCP接口 = await connect({
               hostname: 反代IP地址,
@@ -210,49 +242,68 @@ async function 解析VL标头(VL数据, WS接口, TCP接口) {
             });
             await TCP接口.opened;
           } catch {
-            // 所有连接方式都失败
             return new Response("连接失败", { status: 502 });
           }
         } else {
-          // 没有反代IP，连接失败
           return new Response("连接失败", { status: 502 });
         }
-      }
-    } else {
-      // 没有NAT64前缀，检查是否有反代IP
-      if (反代IP) {
-        try {
-          // 第二步：尝试反代连接
-          let [反代IP地址, 反代IP端口] = 反代IP.split(":");
-          TCP接口 = await connect({
-            hostname: 反代IP地址,
-            port: 反代IP端口 || 443,
-          });
-          await TCP接口.opened;
-        } catch {
-          // 反代连接也失败
-          return new Response("连接失败", { status: 502 });
-        }
-      } else {
-        // 没有配置任何备用连接方式，连接失败
-        return new Response("连接失败", { status: 502 });
       }
     }
+
+    建立传输管道(写入初始数据);
   }
 
-  建立传输管道(WS接口, TCP接口, 写入初始数据);
+  function 验证VL的密钥(arr, offset = 0) {
+    const uuid = (
+      转换密钥格式[arr[offset + 0]] +
+      转换密钥格式[arr[offset + 1]] +
+      转换密钥格式[arr[offset + 2]] +
+      转换密钥格式[arr[offset + 3]] +
+      "-" +
+      转换密钥格式[arr[offset + 4]] +
+      转换密钥格式[arr[offset + 5]] +
+      "-" +
+      转换密钥格式[arr[offset + 6]] +
+      转换密钥格式[arr[offset + 7]] +
+      "-" +
+      转换密钥格式[arr[offset + 8]] +
+      转换密钥格式[arr[offset + 9]] +
+      "-" +
+      转换密钥格式[arr[offset + 10]] +
+      转换密钥格式[arr[offset + 11]] +
+      转换密钥格式[arr[offset + 12]] +
+      转换密钥格式[arr[offset + 13]] +
+      转换密钥格式[arr[offset + 14]] +
+      转换密钥格式[arr[offset + 15]]
+    ).toLowerCase();
+    return uuid;
+  }
+
+  const 转换密钥格式 = [];
+  for (let i = 0; i < 256; ++i) {
+    转换密钥格式.push((i + 256).toString(16).slice(1));
+  }
+
+  async function 建立传输管道(写入初始数据) {
+    传输数据 = TCP接口.writable.getWriter();
+    if (写入初始数据) await 传输数据.write(写入初始数据);
+    TCP接口.readable.pipeTo(
+      new WritableStream({
+        async write(VL数据) {
+          WS接口.send(VL数据);
+        },
+      })
+    );
+  }
 }
 
+// 其它工具函数
 function 转换IPv4到NAT64(ipv4地址) {
-    // 移除前缀中的CIDR后缀
-    const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
-    // 拆分IPv4为四段并转换为十六进制
-    const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
-    // 组合前缀与IPv4十六进制表示
-    return `[${清理后的前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
+  const 清理后的前缀 = NAT64前缀.replace(/\/\d+$/, '');
+  const 十六进制 = ipv4地址.split(".").map(段 => (+段).toString(16).padStart(2, "0"));
+  return `[${清理后的前缀}${十六进制[0]}${十六进制[1]}:${十六进制[2]}${十六进制[3]}]`;
 }
 
-// 解析域名到IPv4地址
 async function 解析域名到IPv4(域名) {
   const { Answer } = await (await fetch(`https://${DOH地址}/dns-query?name=${域名}&type=A`, {
     headers: { "Accept": "application/dns-json" }
@@ -260,63 +311,6 @@ async function 解析域名到IPv4(域名) {
   return Answer.find(({ type }) => type === 1).data;
 }
 
-function 验证VL的密钥(arr, offset = 0) {
-  const uuid = (
-    转换密钥格式[arr[offset + 0]] +
-    转换密钥格式[arr[offset + 1]] +
-    转换密钥格式[arr[offset + 2]] +
-    转换密钥格式[arr[offset + 3]] +
-    "-" +
-    转换密钥格式[arr[offset + 4]] +
-    转换密钥格式[arr[offset + 5]] +
-    "-" +
-    转换密钥格式[arr[offset + 6]] +
-    转换密钥格式[arr[offset + 7]] +
-    "-" +
-    转换密钥格式[arr[offset + 8]] +
-    转换密钥格式[arr[offset + 9]] +
-    "-" +
-    转换密钥格式[arr[offset + 10]] +
-    转换密钥格式[arr[offset + 11]] +
-    转换密钥格式[arr[offset + 12]] +
-    转换密钥格式[arr[offset + 13]] +
-    转换密钥格式[arr[offset + 14]] +
-    转换密钥格式[arr[offset + 15]]
-  ).toLowerCase();
-  return uuid;
-}
-
-const 转换密钥格式 = [];
-for (let i = 0; i < 256; ++i) {
-  转换密钥格式.push((i + 256).toString(16).slice(1));
-}
-
-// 第三步，创建客户端WS-CF-目标的传输通道并监听状态
-async function 建立传输管道(WS接口, TCP接口, 写入初始数据) {
-  const 传输数据 = TCP接口.writable.getWriter();
-  const 数据流 = new ReadableStream({
-    async start(控制器) {
-      控制器.enqueue(写入初始数据);
-      WS接口.addEventListener("message", (event) => 控制器.enqueue(event.data));
-    },
-  });
-  数据流.pipeTo(
-    new WritableStream({
-      async write(VL数据) {
-        传输数据.write(VL数据);
-      },
-    })
-  );
-  TCP接口.readable.pipeTo(
-    new WritableStream({
-      async write(VL数据) {
-        WS接口.send(VL数据);
-      },
-    })
-  );
-}
-
-// 其它
 function 生成UUID() {
   const 二十位 = Array.from(new TextEncoder().encode(订阅路径))
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -439,7 +433,6 @@ function 处理优选列表(优选列表, hostName) {
   });
 }
 
-// 订阅页面
 async function 提示界面() {
   const 提示界面 = `
 <title>订阅-${订阅路径}</title>
