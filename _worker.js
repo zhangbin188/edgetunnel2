@@ -52,7 +52,11 @@ export default {
     if (不是WS请求 && !是正确路径) {
       if (伪装网页) {
         try {
-          const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://')
+          if (伪装网页.startsWith('http://')) {
+            return new Response("不支持http, 请使用https", { status: 403 });
+          }
+          
+          const targetBase = 伪装网页.startsWith('https://')
             ? 伪装网页
             : `https://${伪装网页}`;
 
@@ -102,9 +106,12 @@ export default {
     // 反代 无法访问CF CDN
     if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
+      if (target.startsWith('http://')) {
+        return new Response("不支持http, 请使用https", { status: 403 });
+      }
 
       // 处理未填写协议的情况，默认使用https://
-      if (!target.startsWith('http://') && !target.startsWith('https://')) {
+      if (!target.startsWith('https://')) {
         target = 'https://' + target;
       }
 
