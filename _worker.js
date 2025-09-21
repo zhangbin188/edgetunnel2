@@ -4,7 +4,7 @@ import { connect } from "cloudflare:sockets";
 let 订阅路径 = "订阅路径";
 let 伪装网页;
 let 验证UUID;
-let 优选链接 = "https://raw.githubusercontent.com/ImLTHQ/edgetunnel/main/AutoTest.txt";
+let 优选链接
 let 优选列表 = [];
 let NAT64前缀 = "2a02:898:146:64::";
 let DOH地址 = "1.1.1.1";
@@ -387,46 +387,34 @@ function 生成随机IP(cidr) {
 }
 
 async function 获取优选列表() {
-  try {
-    let 原始列表 = [];
-    if (优选链接) {
-      const 读取优选文本 = await fetch(优选链接);
-      const 转换优选文本 = await 读取优选文本.text();
-      原始列表 = 转换优选文本
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line);
-    }
-
-    const cfIpResponse = await fetch("https://www.cloudflare-cn.com/ips-v4/");
-    const cfIpText = await cfIpResponse.text();
-    const ipSegments = cfIpText
+  let 原始列表 = [];
+  if (优选链接) {
+    const 读取优选文本 = await fetch(优选链接);
+    const 转换优选文本 = await 读取优选文本.text();
+    原始列表 = 转换优选文本
       .split("\n")
-      .map(line => line.trim())
-      .filter(line => line && line.includes("/"));
-
-    const randomIps = [];
-    for (let i = 0; i < 随机IP数量; i++) {
-      // 随机选择一个IP段
-      const randomSegment = ipSegments[Math.floor(Math.random() * ipSegments.length)];
-      // 从该段生成一个随机IP
-      const randomIp = 生成随机IP(randomSegment);
-      // 添加到列表，格式为 "IP#随机IP n"
-      randomIps.push(`${randomIp}:443#随机IP ${i + 1}`);
-    }
-
-    return [...原始列表, ...randomIps];
-  } catch {
-    if (优选链接) {
-      const 读取优选文本 = await fetch(优选链接);
-      const 转换优选文本 = await 读取优选文本.text();
-      return 转换优选文本
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line);
-    }
-    return [];
+      .map((line) => line.trim())
+      .filter((line) => line);
   }
+
+  const cfIpResponse = await fetch("https://www.cloudflare-cn.com/ips-v4/");
+  const cfIpText = await cfIpResponse.text();
+  const ipSegments = cfIpText
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line && line.includes("/"));
+
+  const randomIps = [];
+  for (let i = 0; i < 随机IP数量; i++) {
+    // 随机选择一个IP段
+    const randomSegment = ipSegments[Math.floor(Math.random() * ipSegments.length)];
+    // 从该段生成一个随机IP
+    const randomIp = 生成随机IP(randomSegment);
+    // 添加到列表，格式为 "IP#随机IP n"
+    randomIps.push(`${randomIp}:443#随机IP ${i + 1}`);
+  }
+
+  return [...原始列表, ...randomIps];
 }
 
 function 处理优选列表(优选列表, hostName) {
