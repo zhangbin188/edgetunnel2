@@ -413,17 +413,25 @@ function 单个随机IPv4(cidr) {
 async function 获取优选列表() {
   let 原始列表 = [];
   if (优选链接) {
-    const 读取优选文本 = await fetch(优选链接);
-    const 转换优选文本 = await 读取优选文本.text();
-    原始列表 = 转换优选文本
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line);
+    try {
+      const 读取优选文本 = await fetch(优选链接);
+      const 转换优选文本 = await 读取优选文本.text();
+      原始列表 = 转换优选文本
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line);
+
+      if (原始列表.length > 0) {
+        return 原始列表;
+      }
+    }
+    catch {
+        const randomIps = await 随机IPv4列表(随机IP数量);
+        return randomIps;
+    }
   }
-
   const randomIps = await 随机IPv4列表(随机IP数量);
-
-  return [...原始列表, ...randomIps];
+  return randomIps;
 }
 
 function 处理优选列表(优选列表, hostName) {
