@@ -177,12 +177,20 @@ def main():
     # 按IP地址排序
     matched_results.sort(key=lambda x: ipaddress.IPv4Address(x[0]))
     
-    # 按三字码分组并计数
-    colo_counts = defaultdict(int)
+    # 按三字码分组并计数，输出格式为「IP#地区 序号」
+    colo_groups = defaultdict(list)
+    # 先按三字码分组
+    for ip, colo in matched_results:
+        colo_groups[colo].append(ip)
+    
+    # 按三字码字母顺序排序并写入文件
     with open(output_file, 'w') as f:
-        for ip, colo in matched_results:
-            colo_counts[colo] += 1
-            f.write(f"{colo} {colo_counts[colo]}\n")
+        # 遍历排序后的三字码
+        for colo in sorted(colo_groups.keys()):
+            ips = colo_groups[colo]
+            # 写入该三字码的所有条目（带序号）
+            for idx, ip in enumerate(ips, 1):
+                f.write(f"{ip}#{colo} {idx}\n")  # 关键修改：调整输出格式
     
     print(f"完成！共找到 {len(matched_results)} 个{search_mode}，已保存到 {output_file}")
 
