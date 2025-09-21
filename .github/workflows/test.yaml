@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
       
-      - name: Run CFTest for each region
+      - name: Run CFTest
         run: |
           python CFTest.py HKG 10 HKG.txt
           python CFTest.py KHH 5 KHH.txt
@@ -31,7 +31,7 @@ jobs:
           python CFTest.py NRT 5 NRT.txt
           python CFTest.py SEA 5 SEA.txt
       
-      - name: Merge results
+      - name: Merge
         run: |
           python merge.py
       
