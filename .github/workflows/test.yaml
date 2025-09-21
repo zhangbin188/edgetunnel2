@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  筛选地区:
+  Test:
     runs-on: ubuntu-latest
     
     steps:
