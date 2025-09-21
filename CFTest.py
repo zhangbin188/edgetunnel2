@@ -1,3 +1,6 @@
+MAX_CONCURRENT_THREADS = 32
+REQUEST_TIMEOUT = 5
+
 import sys
 import requests
 import ipaddress
@@ -83,8 +86,8 @@ def check_ip_location(ip, target_colo, stop_event):
         if stop_event.is_set():
             return None
             
-        # 设置较短的超时时间，加快检测速度
-        response = requests.get(url, timeout=5)
+        # 使用常量作为超时时间
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
         
         for line in response.text.splitlines():
@@ -134,8 +137,8 @@ def main():
     # 创建停止事件
     stop_event = threading.Event()
     
-    # 对于大量IP，增加线程数以提高速度，但不要设置过高
-    max_workers = min(100, len(all_ips))  # 并发线程数，最多100
+    # 使用常量作为最大并发线程数
+    max_workers = min(MAX_CONCURRENT_THREADS, len(all_ips))
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # 提交所有任务
@@ -196,5 +199,4 @@ def main():
     
     print(f"完成！共找到 {len(matched_ips)} 个属于 {target_colo} 的IP地址，已保存到 {output_file}")
 
-if __name__ == "__main__":
-    main()
+main()

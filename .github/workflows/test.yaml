@@ -1,0 +1,42 @@
+name: 地区测试
+
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+jobs:
+  find_and_merge:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      
+      - name: Run CFTest for each region
+        run: |
+          python CFTest.py HKG 10 hkg.txt
+          python CFTest.py KHH 5 khh.txt
+          python CFTest.py SIN 5 sin.txt
+          python CFTest.py NRT 5 nrt.txt
+          python CFTest.py SEA 5 sea.txt
+      
+      - name: Merge results
+        run: |
+          python merge.py
+      
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: 地区测试
+          path: ips.txt
