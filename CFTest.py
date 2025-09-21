@@ -62,8 +62,8 @@ def expand_ip_range(ip_range):
         print(f"解析IP段 {ip_range} 失败: {e}")
         return []
 
-def check_ip_location(ip, target_colo, stop_event):
-    """检查IP是否连通，返回IP和对应的三字码"""
+def check_ip_location(ip, target_colos, stop_event):
+    """检查IP是否连通，返回IP和对应的三字码（支持多地区筛选）"""
     if stop_event.is_set():
         return None
         
@@ -88,8 +88,8 @@ def check_ip_location(ip, target_colo, stop_event):
                 colo = line.split('=')[1].strip()
                 break
                 
-        # 验证目标机场码（如果指定）
-        if target_colo and colo != target_colo:
+        # 验证目标机场码（支持多个目标）
+        if target_colos and colo not in target_colos:
             return None
                 
         return (ip, colo) if colo else None
@@ -97,14 +97,15 @@ def check_ip_location(ip, target_colo, stop_event):
         return None
 
 def main():
-    # 解析命令行参数
+    # 解析命令行参数（支持多个地区参数）
     parser = argparse.ArgumentParser(description='查找指定机场码或可连通的IP地址')
-    parser.add_argument('-d', help='机场三字码（可选，不填则匹配所有可连通IP）')
+    parser.add_argument('-d', nargs='+', help='机场三字码（可选，可指定多个，不填则匹配所有可连通IP）')
     parser.add_argument('-i', type=int, default=10, help='测试数量，默认10个')
     parser.add_argument('-o', default='output.txt', help='输出文件名，默认output.txt')
     args = parser.parse_args()
 
-    target_colo = args.d.upper() if args.d else None
+    # 处理多个地区参数（转为大写）
+    target_colos = [col.upper() for col in args.d] if args.d else None
     try:
         max_count = args.i
         if max_count <= 0:
@@ -128,7 +129,11 @@ def main():
         print(f"  从 {range_str} 扩展出 {len(ips)} 个IP")
     
     all_ips = list(set(all_ips))
-    search_mode = f"属于 {target_colo} 的IP" if target_colo else "可连通的IP"
+    # 调整搜索模式描述（支持多地区显示）
+    if target_colos:
+        search_mode = f"属于 {', '.join(target_colos)} 的IP"
+    else:
+        search_mode = "可连通的IP"
     print(f"共扩展出 {len(all_ips)} 个唯一IP地址，正在检查每个IP...")
     print(f"找到 {max_count} 个{search_mode}后将停止搜索")
     
@@ -138,7 +143,8 @@ def main():
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for ip in all_ips:
-            future = executor.submit(check_ip_location, ip, target_colo, stop_event)
+            # 传入多个目标地区
+            future = executor.submit(check_ip_location, ip, target_colos, stop_event)
             futures.append(future)
         
         total = len(futures)
@@ -177,20 +183,17 @@ def main():
     # 按IP地址排序
     matched_results.sort(key=lambda x: ipaddress.IPv4Address(x[0]))
     
-    # 按三字码分组并计数，输出格式为「IP#地区 序号」
+    # 按三字码分组并计数
     colo_groups = defaultdict(list)
-    # 先按三字码分组
     for ip, colo in matched_results:
         colo_groups[colo].append(ip)
     
     # 按三字码字母顺序排序并写入文件
     with open(output_file, 'w') as f:
-        # 遍历排序后的三字码
         for colo in sorted(colo_groups.keys()):
             ips = colo_groups[colo]
-            # 写入该三字码的所有条目（带序号）
             for idx, ip in enumerate(ips, 1):
-                f.write(f"{ip}#{colo} {idx}\n")  # 关键修改：调整输出格式
+                f.write(f"{ip}#{colo} {idx}\n")
     
     print(f"完成！共找到 {len(matched_results)} 个{search_mode}，已保存到 {output_file}")
 
