@@ -1,5 +1,5 @@
 MAX_CONCURRENT_THREADS = 1000
-REQUEST_TIMEOUT = 5
+REQUEST_TIMEOUT = 3
 
 import sys
 import requests
