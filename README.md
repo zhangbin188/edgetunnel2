@@ -49,7 +49,3 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 
 - CloudFlare 明文禁止优选IP和使用CF Pages部署代理, 封号风险自己承担
 - 建议定期同步上游仓库以获取最新功能和修复
-
-## 感谢
-- [zizifn](https://github.com/zizifn) 原作者
-- [XIU2](https://github.com/XIU2) 优选IP程序作者
