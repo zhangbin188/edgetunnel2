@@ -1,4 +1,4 @@
-name: 地区测试
+name: 筛选地区
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  find_and_merge:
+  筛选地区:
     runs-on: ubuntu-latest
     
     steps:
@@ -25,11 +25,11 @@ jobs:
       
       - name: Run CFTest for each region
         run: |
-          python CFTest.py HKG 10 hkg.txt
-          python CFTest.py KHH 5 khh.txt
-          python CFTest.py SIN 5 sin.txt
-          python CFTest.py NRT 5 nrt.txt
-          python CFTest.py SEA 5 sea.txt
+          python CFTest.py HKG 10 HKG.txt
+          python CFTest.py KHH 5 KHH.txt
+          python CFTest.py SIN 5 SIN.txt
+          python CFTest.py NRT 5 NRT.txt
+          python CFTest.py SEA 5 SEA.txt
       
       - name: Merge results
         run: |
