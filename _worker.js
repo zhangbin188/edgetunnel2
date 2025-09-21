@@ -421,7 +421,7 @@ async function 获取优选列表() {
       .filter((line) => line);
   }
 
-  const randomIps = 随机IPv4列表(随机IP数量);
+  const randomIps = await 随机IPv4列表(随机IP数量);
 
   return [...原始列表, ...randomIps];
 }
