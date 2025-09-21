@@ -23,17 +23,6 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 - **保存并部署**
 3. **导入订阅(域名/订阅路径/clash或v2ray)并开始使用**
 
-<details>
-<summary><strong>反代说明</strong></summary>
-
-- 并非指的是 `PROXY_IP`, 而是用于没有代理工具场景的简易代理
-- 使用方法: https://域名/订阅路径/http(或https)://目标域名和路径
-- 无法访问CF CDN
-
-请勿用于非法用途
-
-</details>
-
 ## 环境变量说明
 
 | 变量名 | 示例值 | 说明 |
@@ -44,6 +33,35 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 | DOH | `1.1.1.1` | DOH地址 |
 | PROXY_IP | `proxyip.cmliussss.net` | 反代地址和端口, 端口不填默认 `443` |
 | FAKE_WEB | `baidu.com` | 伪装网页 |
+
+<details>
+<summary><strong>反代说明</strong></summary>
+
+- 并非指的是 `PROXY_IP`, 而是用于没有代理工具场景的简易代理
+- 使用方法: https://域名/订阅路径/https://目标域名和路径
+- 无法访问CF CDN
+
+请勿用于非法用途
+
+</details>
+
+<details>
+<summary><strong>CFTest说明</strong></summary>
+
+# 简介
+
+CFTest 是用于检测 Cloudflare IP 地址的工具，可帮助用户快速筛选出可连通的 Cloudflare IP 地址，并支持按指定地区（机场三字码）进行筛选。该工具适用于需要寻找优质 Cloudflare IP 节点的场景
+
+- 所需 Python 库：requests
+- 可通过以下命令安装依赖：`pip install requests`
+
+| 可选参数 | 说明 |
+|-|-|
+| `-d` | 指定一个或多个机场三字码（如 LAX SJC），仅返回属于这些地区的 IP |
+| `-i` | 指定需要获取的 IP 数量，默认值为 10 |
+| `-o` | 指定输出文件名称，默认值为 `output.txt` |
+
+</details>
 
 ## 提醒
 
