@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 import re
 import threading
 import argparse
+from collections import defaultdict
 
 def is_valid_ipv4_range(ip_range):
     """验证IPv4段格式是否正确"""
@@ -62,7 +63,7 @@ def expand_ip_range(ip_range):
         return []
 
 def check_ip_location(ip, target_colo, stop_event):
-    """检查IP是否连通，若指定机场码则同时验证"""
+    """检查IP是否连通，返回IP和对应的三字码"""
     if stop_event.is_set():
         return None
         
@@ -80,16 +81,18 @@ def check_ip_location(ip, target_colo, stop_event):
         response = requests.get(url, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
         
-        # 如果未指定目标机场码，只要连通就返回
-        if not target_colo:
-            return ip
-            
-        # 指定了机场码则验证匹配
+        # 提取三字码
+        colo = None
         for line in response.text.splitlines():
             if line.startswith('colo='):
                 colo = line.split('=')[1].strip()
-                return ip if colo == target_colo else None
-        return None
+                break
+                
+        # 验证目标机场码（如果指定）
+        if target_colo and colo != target_colo:
+            return None
+                
+        return (ip, colo) if colo else None
     except Exception:
         return None
 
@@ -140,9 +143,9 @@ def main():
         
         total = len(futures)
         completed = 0
-        matched_ips = []
+        matched_results = []  # 存储(IP, 三字码)元组
         
-        while completed < total and len(matched_ips) < max_count:
+        while completed < total and len(matched_results) < max_count:
             done, not_done = wait(futures, return_when=FIRST_COMPLETED)
             
             for future in done:
@@ -152,10 +155,10 @@ def main():
                     
                     result = future.result()
                     if result:
-                        matched_ips.append(result)
-                        print(f"已找到 {len(matched_ips)}/{max_count} 个{search_mode}")
+                        matched_results.append(result)
+                        print(f"已找到 {len(matched_results)}/{max_count} 个{search_mode}")
                         
-                        if len(matched_ips) >= max_count:
+                        if len(matched_results) >= max_count:
                             print(f"\n已找到 {max_count} 个{search_mode}，停止搜索")
                             stop_event.set()
                             for f in futures:
@@ -166,17 +169,21 @@ def main():
                 break
             
             if completed % 50 == 0 or completed == total:
-                print(f"进度: {completed}/{total} ({(completed/total)*100:.1f}%)，已找到 {len(matched_ips)} 个{search_mode}")
+                print(f"进度: {completed}/{total} ({(completed/total)*100:.1f}%)，已找到 {len(matched_results)} 个{search_mode}")
     
-    if len(matched_ips) > max_count:
-        matched_ips = matched_ips[:max_count]
+    if len(matched_results) > max_count:
+        matched_results = matched_results[:max_count]
     
-    matched_ips = sorted(matched_ips, key=lambda x: ipaddress.IPv4Address(x))
+    # 按IP地址排序
+    matched_results.sort(key=lambda x: ipaddress.IPv4Address(x[0]))
     
+    # 按三字码分组并计数
+    colo_counts = defaultdict(int)
     with open(output_file, 'w') as f:
-        for ip in matched_ips:
-            f.write(f"{ip}\n")
+        for ip, colo in matched_results:
+            colo_counts[colo] += 1
+            f.write(f"{colo} {colo_counts[colo]}\n")
     
-    print(f"完成！共找到 {len(matched_ips)} 个{search_mode}，已保存到 {output_file}")
+    print(f"完成！共找到 {len(matched_results)} 个{search_mode}，已保存到 {output_file}")
 
 main()
