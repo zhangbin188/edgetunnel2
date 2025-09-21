@@ -25,11 +25,11 @@ jobs:
       
       - name: Run CFTest
         run: |
-          python CFTest.py HKG 10 HKG.txt
-          python CFTest.py KHH 5 KHH.txt
-          python CFTest.py SIN 5 SIN.txt
-          python CFTest.py NRT 5 NRT.txt
-          python CFTest.py SEA 5 SEA.txt
+          python CFTest.py HKG 10 HKG
+          python CFTest.py KHH 5 KHH
+          python CFTest.py SIN 5 SIN
+          python CFTest.py NRT 5 NRT
+          python CFTest.py SEA 5 SEA
       
       - name: Merge
         run: |

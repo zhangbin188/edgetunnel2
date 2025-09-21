@@ -2,11 +2,11 @@ import os
 
 def merge():
     regions = {
-        'HKG.txt': 'HKG',
-        'KHH.txt': 'KHH',
-        'SIN.txt': 'SIN',
-        'NRT.txt': 'NRT',
-        'SEA.txt': 'SEA'
+        'HKG': 'HKG',
+        'KHH': 'KHH',
+        'SIN': 'SIN',
+        'NRT': 'NRT',
+        'SEA': 'SEA'
     }
     
     merged_entries = []
