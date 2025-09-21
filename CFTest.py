@@ -1,8 +1,9 @@
 import sys
 import requests
 import ipaddress
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait, FIRST_COMPLETED
 import re
+import threading
 
 def is_valid_ipv4_range(ip_range):
     """验证IPv4段格式是否正确"""
@@ -46,7 +47,7 @@ def fetch_ip_ranges(url):
         sys.exit(1)
 
 def expand_ip_range(ip_range):
-    """将IP段扩展为具体的IP地址列表"""
+    """将IP段扩展为具体的所有IP地址列表"""
     try:
         # 使用strict=True确保网络地址合法
         network = ipaddress.ip_network(ip_range, strict=True)
@@ -56,27 +57,19 @@ def expand_ip_range(ip_range):
             print(f"忽略非IPv4段: {ip_range}")
             return []
             
-        # 根据网段大小决定返回的IP数量
-        num_addresses = network.num_addresses
-        
-        # 网络地址和广播地址通常不分配给主机
-        if num_addresses <= 2:
-            return [str(ip) for ip in network]
-        elif num_addresses <= 100:
-            return [str(ip) for ip in network.hosts()]
-        elif num_addresses <= 1000:
-            # 中等大小网段，取前10个和后10个
-            return [str(network[i]) for i in list(range(10)) + list(range(-10, 0))]
-        else:
-            # 大型网段，取前5个和后5个
-            return [str(network[i]) for i in list(range(5)) + list(range(-5, 0))]
+        # 返回所有IP地址，包括网络地址和广播地址
+        return [str(ip) for ip in network]
             
     except ValueError as e:
         print(f"解析IP段 {ip_range} 失败: {e}")
         return []
 
-def check_ip_location(ip, target_colo):
-    """检查IP对应的机场码是否匹配目标"""
+def check_ip_location(ip, target_colo, stop_event):
+    """检查IP对应的机场码是否匹配目标，支持通过事件停止"""
+    # 如果已触发停止事件，直接返回
+    if stop_event.is_set():
+        return None
+        
     # 验证IP格式
     try:
         ipaddress.IPv4Address(ip)
@@ -86,6 +79,10 @@ def check_ip_location(ip, target_colo):
         
     url = f"http://{ip}/cdn-cgi/trace"
     try:
+        # 如果已触发停止事件，直接返回
+        if stop_event.is_set():
+            return None
+            
         # 设置较短的超时时间，加快检测速度
         response = requests.get(url, timeout=5)
         response.raise_for_status()
@@ -100,13 +97,21 @@ def check_ip_location(ip, target_colo):
         return None
 
 def main():
-    if len(sys.argv) != 3:
-        print("用法: python main.py 机场码 文件名(.txt)")
-        print("示例: python main.py HKG output.txt")
+    if len(sys.argv) != 4:
+        print("用法: python CFTest.py 机场三字码 最大数量 文件名(.txt)")
+        print("示例: python CFTest.py HKG 100 output.txt")
         sys.exit(1)
     
     target_colo = sys.argv[1].upper()
-    output_file = sys.argv[2]
+    try:
+        max_count = int(sys.argv[2])
+        if max_count <= 0:
+            raise ValueError("最大数量必须为正数")
+    except ValueError as e:
+        print(f"无效的最大数量: {e}")
+        sys.exit(1)
+    
+    output_file = sys.argv[3]
     ip_ranges_url = "https://www.cloudflare-cn.com/ips-v4"
     
     print(f"正在从 {ip_ranges_url} 获取IP段...")
@@ -124,32 +129,65 @@ def main():
     # 去重IP列表
     all_ips = list(set(all_ips))
     print(f"共扩展出 {len(all_ips)} 个唯一IP地址，正在检查每个IP的位置...")
+    print(f"找到 {max_count} 个匹配IP后将停止搜索")
     
-    # 使用多线程加速检测过程
-    matched_ips = []
-    max_workers = 50  # 并发线程数
+    # 创建停止事件
+    stop_event = threading.Event()
+    
+    # 对于大量IP，增加线程数以提高速度，但不要设置过高
+    max_workers = min(100, len(all_ips))  # 并发线程数，最多100
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # 提交所有任务
-        futures = {executor.submit(check_ip_location, ip, target_colo): ip for ip in all_ips}
+        futures = []
+        for ip in all_ips:
+            # 将停止事件传递给每个任务
+            future = executor.submit(check_ip_location, ip, target_colo, stop_event)
+            futures.append(future)
         
         # 跟踪进度
         total = len(futures)
         completed = 0
+        matched_ips = []
         
-        for future in as_completed(futures):
-            result = future.result()
-            completed += 1
+        # 循环处理完成的任务，直到达到最大数量或所有任务完成
+        while completed < total and len(matched_ips) < max_count:
+            # 等待第一个任务完成
+            done, not_done = wait(futures, return_when=FIRST_COMPLETED)
+            
+            for future in done:
+                if future in futures:
+                    futures.remove(future)
+                    completed += 1
+                    
+                    result = future.result()
+                    if result:
+                        matched_ips.append(result)
+                        print(f"已找到 {len(matched_ips)}/{max_count} 个匹配IP")
+                        
+                        # 检查是否达到最大数量
+                        if len(matched_ips) >= max_count:
+                            print(f"\n已找到 {max_count} 个匹配IP，达到最大数量，停止搜索")
+                            stop_event.set()  # 触发停止事件
+                            # 取消所有未完成的任务
+                            for f in futures:
+                                f.cancel()
+                            break
+            
+            # 检查是否需要停止
+            if stop_event.is_set():
+                break
             
             # 显示进度
-            if completed % 10 == 0 or completed == total:
+            if completed % 50 == 0 or completed == total:
                 print(f"进度: {completed}/{total} ({(completed/total)*100:.1f}%)，已找到 {len(matched_ips)} 个匹配IP")
-            
-            if result:
-                matched_ips.append(result)
+    
+    # 如果达到最大数量，截断结果
+    if len(matched_ips) > max_count:
+        matched_ips = matched_ips[:max_count]
     
     # 排序结果
-    matched_ips = sorted(matched_ips)
+    matched_ips = sorted(matched_ips, key=lambda x: ipaddress.IPv4Address(x))
     
     # 保存结果到文件
     with open(output_file, 'w') as f:
