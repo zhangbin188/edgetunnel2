@@ -30,11 +30,6 @@ def expand_ip_range(ip_range):
     """将IP段扩展为具体的所有IP地址列表"""
     try:
         network = ipaddress.ip_network(ip_range, strict=True)
-        
-        if not isinstance(network, ipaddress.IPv4Network):
-            print(f"忽略非IPv4段: {ip_range}")
-            return []
-            
         return [str(ip) for ip in network]
             
     except ValueError as e:
