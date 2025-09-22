@@ -5,28 +5,9 @@ import sys
 import requests
 import ipaddress
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
-import re
 import threading
 import argparse
 from collections import defaultdict
-
-def is_valid_ipv4_range(ip_range):
-    """验证IPv4段格式是否正确"""
-    cidr_pattern = r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})$'
-    match = re.match(cidr_pattern, ip_range)
-    
-    if not match:
-        return False
-    
-    for i in range(4):
-        if not (0 <= int(match.group(i+1)) <= 255):
-            return False
-    
-    prefix = int(match.group(5))
-    if not (0 <= prefix <= 32):
-        return False
-        
-    return True
 
 def fetch_ip_ranges(url):
     """从指定URL获取IP段列表"""
@@ -37,10 +18,8 @@ def fetch_ip_ranges(url):
         ip_ranges = []
         for line in response.text.splitlines():
             line = line.strip()
-            if line and is_valid_ipv4_range(line):
+            if line:
                 ip_ranges.append(line)
-            elif line:
-                print(f"忽略无效的IP段: {line}")
                 
         return ip_ranges
     except Exception as e:
@@ -119,7 +98,7 @@ def main():
     
     print(f"正在从 {ip_ranges_url} 获取IP段...")
     ip_ranges = fetch_ip_ranges(ip_ranges_url)
-    print(f"成功获取并验证 {len(ip_ranges)} 个IP段")
+    print(f"成功获取 {len(ip_ranges)} 个IP段")
     
     print("正在扩展IP段...")
     all_ips = []
