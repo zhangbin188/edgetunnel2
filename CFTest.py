@@ -72,10 +72,10 @@ def check_ip_location(ip, target_colos, stop_event):
 
 def main():
     # 解析命令行参数（支持多个地区参数）
-    parser = argparse.ArgumentParser(description='查找指定机场码或可连通的IP地址')
-    parser.add_argument('-d', nargs='+', help='机场三字码（可选，可指定多个，不填则匹配所有可连通IP）')
-    parser.add_argument('-i', type=int, default=10, help='测试数量，默认10个')
-    parser.add_argument('-o', default='output.txt', help='输出文件名，默认output.txt')
+    parser = argparse.ArgumentParser(description='CFTest')
+    parser.add_argument('-d', nargs='+', help='机场三字码 (可选, 可指定多个, 不填则匹配所有可连通IP)')
+    parser.add_argument('-i', type=int, default=10, help='测试数量, 默认10个')
+    parser.add_argument('-o', default='output.txt', help='输出文件名, 默认output.txt')
     args = parser.parse_args()
 
     # 处理多个地区参数（转为大写）
@@ -157,18 +157,24 @@ def main():
     # 按IP地址排序
     matched_results.sort(key=lambda x: ipaddress.IPv4Address(x[0]))
     
-    # 按三字码分组并计数
-    colo_groups = defaultdict(list)
-    for ip, colo in matched_results:
-        colo_groups[colo].append(ip)
-    
-    # 按三字码字母顺序排序并写入文件
+    # 写入文件（根据是否指定-d参数使用不同格式）
     with open(output_file, 'w') as f:
-        for colo in sorted(colo_groups.keys()):
-            ips = colo_groups[colo]
-            for idx, ip in enumerate(ips, 1):
-                f.write(f"{ip}#{colo} {idx}\n")
+        if target_colos:
+            # 按三字码分组并计数（指定-d时保留原格式）
+            colo_groups = defaultdict(list)
+            for ip, colo in matched_results:
+                colo_groups[colo].append(ip)
+            # 按三字码字母顺序排序
+            for colo in sorted(colo_groups.keys()):
+                ips = colo_groups[colo]
+                for idx, ip in enumerate(ips, 1):
+                    f.write(f"{ip}#{colo} {idx}\n")
+        else:
+            # 不指定-d时使用"IP#优选IP 序号"格式
+            for idx, (ip, _) in enumerate(matched_results, 1):
+                f.write(f"{ip}#优选IP {idx}\n")
     
     print(f"完成！共找到 {len(matched_results)} 个{search_mode}，已保存到 {output_file}")
 
-main()
+if __name__ == "__main__":  # 补充主程序入口判断
+    main()
