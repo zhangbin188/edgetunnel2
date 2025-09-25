@@ -74,12 +74,16 @@ export default {
     }
 
     if (!WS请求) {
+      if (url.pathname === 威图锐路径 || 
+          url.pathname === 科拉什路径 || 
+          url.pathname === `/${encodeURIComponent(订阅路径)}`) {
+            优选列表 = await 获取优选列表();
+      }
+
       if (url.pathname === 威图锐路径) {
-        优选列表 = await 获取优选列表();
         return 威图锐配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === 科拉什路径) {
-        优选列表 = await 获取优选列表();
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
