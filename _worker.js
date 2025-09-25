@@ -74,10 +74,12 @@ export default {
     }
 
     if (!WS请求) {
-      if (url.pathname === 威图锐路径 || 
-          url.pathname === 科拉什路径 || 
-          url.pathname === `/${encodeURIComponent(订阅路径)}`) {
-            优选列表 = await 获取优选列表();
+      if (!优选列表 &&
+          (url.pathname === 威图锐路径 || 
+           url.pathname === 科拉什路径 || 
+           url.pathname === `/${encodeURIComponent(订阅路径)}`)
+         ) {
+        优选列表 = await 获取优选列表();
       }
 
       if (url.pathname === 威图锐路径) {
