@@ -37,14 +37,16 @@ export default {
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade");
     const WS请求 = 读取我的请求标头 == "websocket";
 
-    const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐}`;
-    const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什}`;
-    const 反代前缀 = `/${encodeURIComponent(订阅路径)}/`;
+    const 路径配置 = {
+      威图锐: `/${encodeURIComponent(订阅路径)}/${威图锐}`,
+      科拉什: `/${encodeURIComponent(订阅路径)}/${科拉什}`,
+      反代前缀: `/${encodeURIComponent(订阅路径)}/`,
+    };
 
-    const 是正确路径 = url.pathname === 威图锐路径 || 
-                      url.pathname === 科拉什路径 || 
+    const 是正确路径 = url.pathname === 路径配置.威图锐 || 
+                      url.pathname === 路径配置.科拉什 || 
                       url.pathname === `/${encodeURIComponent(订阅路径)}` ||
-                      url.pathname.startsWith(反代前缀);
+                      url.pathname.startsWith(路径配置.反代前缀);
 
     if (!WS请求 && !是正确路径) {
       if (伪装网页) {
@@ -75,17 +77,17 @@ export default {
 
     if (!WS请求) {
       if (!优选列表 &&
-          (url.pathname === 威图锐路径 || 
-           url.pathname === 科拉什路径 || 
+          (url.pathname === 路径配置.威图锐 || 
+           url.pathname === 路径配置.科拉什 || 
            url.pathname === `/${encodeURIComponent(订阅路径)}`)
          ) {
         优选列表 = await 获取优选列表();
       }
 
-      if (url.pathname === 威图锐路径) {
+      if (url.pathname === 路径配置.威图锐) {
         return 威图锐配置文件(访问请求.headers.get("Host"));
       }
-      else if (url.pathname === 科拉什路径) {
+      else if (url.pathname === 路径配置.科拉什) {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
@@ -103,7 +105,7 @@ export default {
     }
 
     // 反代 无法访问CF CDN
-    if (url.pathname.startsWith(反代前缀) && url.pathname !== 威图锐路径 && url.pathname !== 科拉什路径) {
+    if (url.pathname.startsWith(路径配置.反代前缀) && url.pathname !== 路径配置.威图锐 && url.pathname !== 路径配置.科拉什) {
       let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
       // 处理未填写协议的情况，默认使用https://
       if (!target.startsWith('https://')) {
