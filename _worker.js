@@ -36,7 +36,6 @@ export default {
     const url = new URL(访问请求.url);
     const 读取我的请求标头 = 访问请求.headers.get("Upgrade");
     const WS请求 = 读取我的请求标头 == "websocket";
-    const 非WS请求 = 读取我的请求标头?.toLowerCase() !== "websocket";
 
     const 威图锐路径 = `/${encodeURIComponent(订阅路径)}/${威图锐}`;
     const 科拉什路径 = `/${encodeURIComponent(订阅路径)}/${科拉什}`;
@@ -47,7 +46,7 @@ export default {
                       url.pathname === `/${encodeURIComponent(订阅路径)}` ||
                       url.pathname.startsWith(反代前缀);
 
-    if (非WS请求 && !是正确路径) {
+    if (!WS请求 && !是正确路径) {
       if (伪装网页) {
         try {
           const targetBase = 伪装网页.startsWith('https://')
@@ -74,7 +73,7 @@ export default {
       }
     }
 
-    if (非WS请求) {
+    if (!WS请求) {
       if (url.pathname === 威图锐路径) {
         优选列表 = await 获取优选列表();
         return 威图锐配置文件(访问请求.headers.get("Host"));
