@@ -98,7 +98,7 @@ export default {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === 路径配置.星博斯) {
-        return 星博斯配置文件(访问请求.headers.get("Host"));
+        return 星博斯配置文件();
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
@@ -489,77 +489,6 @@ rules:
   });
 }
 
-function 星博斯配置文件(hostName) {
-  const 节点列表 = 处理优选列表(优选列表, hostName);
-  const 配置内容 = {
-    "log": {
-      "level": "info",
-      "timestamp": true
-    },
-    "inbounds": [
-      {
-        "type": "mixed",
-        "listen": "::",
-        "listen_port": 7890,
-        "sniff": true,
-        "sniff_override_destination": true
-      }
-    ],
-    "outbounds": [
-      ...节点列表.map(({ 地址, 端口, 节点名字 }) => ({
-        "type": "vmess",
-        "tag": 节点名字,
-        "server": 地址,
-        "server_port": 端口,
-        "uuid": 验证UUID,
-        "security": "auto",
-        "tls": {
-          "enabled": true,
-          "server_name": hostName,
-          "utls": {
-            "enabled": true,
-            "fingerprint": "chrome"
-          }
-        },
-        "transport": {
-          "type": "ws",
-          "ws": {
-            "headers": {
-              "Host": hostName
-            }
-          }
-        }
-      })),
-      {
-        "type": "direct",
-        "tag": "direct"
-      },
-      {
-        "type": "block",
-        "tag": "block"
-      }
-    ],
-    "route": {
-      "rules": [
-        {
-          "protocol": ["dns"],
-          "outbound": "direct"
-        },
-        {
-          "geoip": "cn",
-          "outbound": "direct"
-        },
-        {
-          "geosite": "cn",
-          "outbound": "direct"
-        }
-      ],
-      "final": 节点列表.length > 0 ? 节点列表[0].节点名字 : "direct"
-    }
-  };
-
-  return new Response(JSON.stringify(配置内容, null, 2), {
-    status: 200,
-    headers: { "Content-Type": "application/json;charset=utf-8" },
-  });
+function 星博斯配置文件() {
+  return new Response(null, { status: 404 });
 }
