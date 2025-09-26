@@ -521,8 +521,8 @@ function 星博斯配置文件(hostName) {
   const 节点选择规则 = 代理节点.map((node, index) => ({
     "type": "selector",
     "tag": "节点选择",
-    "outbounds": proxy节点.map(n => n.tag),
-    "default": proxy节点[0].tag
+    "outbounds": 代理节点.map(n => n.tag),
+    "default": 代理节点[0].tag
   }));
 
   const 配置内容 = {
