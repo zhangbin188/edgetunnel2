@@ -98,13 +98,14 @@ export default {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === 路径配置.星博斯) {
-        return new Response(null, { status: 404 });
+        return 星博斯配置文件();
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
         const 配置生成器 = {
           [威图锐]: 威图锐配置文件,
           [科拉什]: 科拉什配置文件,
+          [星博斯]: 星博斯配置文件,
           tips: 提示界面,
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
@@ -486,4 +487,8 @@ rules:
     status: 200,
     headers: { "Content-Type": "text/plain;charset=utf-8" },
   });
+}
+
+function 星博斯配置文件() {
+  return new Response(null, { status: 404 });
 }
