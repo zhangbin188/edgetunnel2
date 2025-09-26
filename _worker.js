@@ -43,8 +43,8 @@ export default {
       反代前缀: `/${encodeURIComponent(订阅路径)}/`,
     };
 
-    const 是正确路径 = url.pathname === 路径配置.威图锐 || 
-                      url.pathname === 路径配置.科拉什 || 
+    const 是正确路径 = url.pathname === 路径配置.威图锐 ||
+                      url.pathname === 路径配置.科拉什 ||
                       url.pathname === `/${encodeURIComponent(订阅路径)}` ||
                       url.pathname.startsWith(路径配置.反代前缀);
 
