@@ -510,7 +510,7 @@ function 星博斯配置文件(hostName) {
     },
     transport: {
       type: "ws",
-      path: `/${encodeURIComponent(订阅路径)}/${星博斯}`,
+      path: `/`,
       headers: {
         Host: hostName
       }
