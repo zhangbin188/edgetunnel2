@@ -14,13 +14,17 @@ let 威图锐拆分_1 = "v2";
 let 威图锐拆分_2 = "ray";
 let 威图锐 = 威图锐拆分_1 + 威图锐拆分_2;
 
-let 维列斯拆分_1 = "vl";
-let 维列斯拆分_2 = "ess";
-let 维列斯 = 维列斯拆分_1 + 维列斯拆分_2;
-
 let 科拉什拆分_1 = "cla";
 let 科拉什拆分_2 = "sh";
 let 科拉什 = 科拉什拆分_1 + 科拉什拆分_2;
+
+let 星博斯拆分_1 = "sing";
+let 星博斯拆分_2 = "box";
+let 星博斯 = 星博斯拆分_1 + "-" + 星博斯拆分_2;
+
+let 维列斯拆分_1 = "vl";
+let 维列斯拆分_2 = "ess";
+let 维列斯 = 维列斯拆分_1 + 维列斯拆分_2;
 
 // 网页入口
 export default {
@@ -40,11 +44,13 @@ export default {
     const 路径配置 = {
       威图锐: `/${encodeURIComponent(订阅路径)}/${威图锐}`,
       科拉什: `/${encodeURIComponent(订阅路径)}/${科拉什}`,
+      星博斯: `/${encodeURIComponent(订阅路径)}/${星博斯}`,
       反代前缀: `/${encodeURIComponent(订阅路径)}/`,
     };
 
     const 是正确路径 = url.pathname === 路径配置.威图锐 ||
                       url.pathname === 路径配置.科拉什 ||
+                      url.pathname === 路径配置.星博斯 ||
                       url.pathname === `/${encodeURIComponent(订阅路径)}` ||
                       url.pathname.startsWith(路径配置.反代前缀);
 
@@ -77,8 +83,9 @@ export default {
 
     if (!WS请求) {
       if (!优选列表 &&
-          (url.pathname === 路径配置.威图锐 || 
-           url.pathname === 路径配置.科拉什 || 
+          (url.pathname === 路径配置.威图锐 ||
+           url.pathname === 路径配置.科拉什 ||
+           url.pathname === 路径配置.星博斯 ||
            url.pathname === `/${encodeURIComponent(订阅路径)}`)
          ) {
         优选列表 = await 获取优选列表();
