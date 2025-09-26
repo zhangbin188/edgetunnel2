@@ -98,7 +98,7 @@ export default {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === 路径配置.星博斯) {
-        return 星博斯配置文件();
+        return 星博斯配置文件(访问请求.headers.get("Host"));
       }
       else if (url.pathname === `/${encodeURIComponent(订阅路径)}`) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
@@ -489,6 +489,206 @@ rules:
   });
 }
 
-function 星博斯配置文件() {
-  return new Response(null, { status: 404 });
+function 星博斯配置文件(hostName) {
+  const 节点列表 = 处理优选列表(优选列表, hostName);
+  const 代理节点 = 节点列表.map(({ 地址, 端口, 节点名字 }, index) => ({
+    type: "vless",
+    tag: `proxy_${index}`,
+    name: 节点名字, // 新增节点名字字段
+    server: 地址,
+    server_port: 端口,
+    uuid: 验证UUID,
+    packet_encoding: "xudp",
+    tls: {
+      enabled: true,
+      server_name: hostName,
+      insecure: false,
+      utls: {
+        enabled: true,
+        fingerprint: "chrome"
+      }
+    },
+    transport: {
+      type: "ws",
+      path: `/${encodeURIComponent(订阅路径)}/${星博斯}`,
+      headers: {
+        Host: hostName
+      }
+    }
+  }));
+
+  // 生成出站节点选择规则（使用节点名字）
+  const 节点选择规则 = 代理节点.map((node, index) => ({
+    "type": "selector",
+    "tag": "节点选择",
+    "outbounds": proxy节点.map(n => n.tag),
+    "default": proxy节点[0].tag
+  }));
+
+  const 配置内容 = {
+    log: {
+      level: "info",
+      timestamp: true
+    },
+    dns: {
+      servers: [
+        {
+          tag: "remote",
+          address: "tcp://8.8.8.8",
+          strategy: "prefer_ipv4",
+          detour: "proxy_0" // 使用第一个代理节点作为默认
+        },
+        {
+          tag: "local",
+          address: "223.5.5.5",
+          strategy: "prefer_ipv4",
+          detour: "direct"
+        },
+        {
+          tag: "block",
+          address: "rcode://success"
+        },
+        {
+          tag: "local_local",
+          address: "223.5.5.5",
+          detour: "direct"
+        }
+      ],
+      rules: [
+        {
+          server: "remote",
+          clash_mode: "Global"
+        },
+        {
+          server: "local_local",
+          clash_mode: "Direct"
+        },
+        {
+          server: "local",
+          rule_set: ["geosite-cn"]
+        }
+      ],
+      final: "remote"
+    },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "socks",
+        listen: "127.0.0.1",
+        listen_port: 10808,
+        sniff: true,
+        sniff_override_destination: true
+      }
+    ],
+    outbounds: [
+      ...代理节点,
+      ...节点选择规则, // 添加节点选择器
+      {
+        type: "direct",
+        tag: "direct"
+      },
+      {
+        type: "block",
+        tag: "block"
+      },
+      {
+        type: "dns",
+        tag: "dns_out"
+      }
+    ],
+    route: {
+      rules: [
+        {
+          outbound: "dns_out",
+          protocol: ["dns"]
+        },
+        {
+          outbound: "direct",
+          clash_mode: "Direct"
+        },
+        {
+          outbound: 代理节点.length > 0 ? "节点选择" : "proxy", // 使用节点选择器
+          clash_mode: "Global"
+        },
+        {
+          outbound: 代理节点.length > 0 ? "节点选择" : "proxy", // 使用节点选择器
+          domain: ["googleapis.cn", "gstatic.com"],
+          domain_suffix: [".googleapis.cn", ".gstatic.com"]
+        },
+        // 其余路由规则保持不变...
+        {
+          outbound: "block",
+          network: ["udp"],
+          port: [443]
+        },
+        {
+          outbound: "direct",
+          ip_is_private: true
+        },
+        {
+          outbound: "direct",
+          rule_set: ["geosite-private"]
+        },
+        {
+          outbound: "direct",
+          ip_cidr: [
+            "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1",
+            "119.29.29.29", "1.12.12.12", "120.53.53.53", "2402:4e00::",
+            "2402:4e00:1::", "180.76.76.76", "2400:da00::6666",
+            "114.114.114.114", "114.114.115.115", "114.114.114.119",
+            "114.114.115.119", "114.114.114.110", "114.114.115.110",
+            "180.184.1.1", "180.184.2.2", "101.226.4.6", "218.30.118.6",
+            "123.125.81.6", "140.207.198.6", "1.2.4.8", "210.2.4.8",
+            "52.80.66.66", "117.50.22.22", "2400:7fc0:849e:200::4",
+            "2404:c2c0:85d8:901::4", "117.50.10.10", "52.80.52.52",
+            "2400:7fc0:849e:200::8", "2404:c2c0:85d8:901::8",
+            "117.50.60.30", "52.80.60.30"
+          ]
+        },
+        {
+          outbound: "direct",
+          domain: ["alidns.com", "doh.pub", "dot.pub", "360.cn", "onedns.net"],
+          domain_suffix: [".alidns.com", ".doh.pub", ".dot.pub", ".360.cn", ".onedns.net"]
+        },
+        {
+          outbound: "direct",
+          rule_set: ["geoip-cn"]
+        },
+        {
+          outbound: "direct",
+          rule_set: ["geosite-cn"]
+        }
+      ],
+      rule_set: [
+        {
+          tag: "geosite-private",
+          type: "local",
+          format: "binary",
+          path: "C:\\Program Files\\v2rayN-windows-64\\bin\\srss\\geosite-private.srs"
+        },
+        {
+          tag: "geosite-cn",
+          type: "local",
+          format: "binary",
+          path: "C:\\Program Files\\v2rayN-windows-64\\bin\\srss\\geosite-cn.srs"
+        },
+        {
+          tag: "geoip-cn",
+          type: "local",
+          format: "binary",
+          path: "C:\\Program Files\\v2rayN-windows-64\\bin\\srss\\geoip-cn.srs"
+        }
+      ]
+    },
+    experimental: {
+      clash_api: {
+        external_controller: "127.0.0.1:10813"
+      }
+    }
+  };
+
+  return new Response(JSON.stringify(配置内容, null, 2), {
+    status: 200,
+    headers: { "Content-Type": "application/json;charset=utf-8" }
+  });
 }
