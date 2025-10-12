@@ -242,10 +242,10 @@ async function 启动传输管道(WS接口) {
             });
             await TCP接口.opened;
           } catch {
-            return new Response("连接失败", { status: 502 });
+            console.error("连接失败");
           }
         } else {
-          return new Response("连接失败", { status: 502 });
+          console.error("连接失败");
         }
       }
     }
