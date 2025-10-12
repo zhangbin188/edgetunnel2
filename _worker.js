@@ -68,6 +68,7 @@ export default {
           const 响应对象 = await fetch(请求对象);
           return 响应对象;
         } catch {
+          console.error(`[伪装网页请求失败] 目标: ${伪装网页}, 路径: ${url.pathname}`);
           return new Response(null, { status: 404 });
         }
       } else {
@@ -121,6 +122,7 @@ export default {
           const 响应对象 = await fetch(请求对象);
           return 响应对象;
       } catch {
+        console.error(`[反代请求失败] 目标: ${target}`);
         return new Response(null, { status: 404 });
       }
     }
@@ -225,10 +227,10 @@ async function 启动传输管道(WS接口) {
               });
               await TCP接口.opened;
             } catch {
-              console.error("连接失败");
+              console.error("连接均失败");
             }
           } else {
-            console.error("连接失败");
+            console.error("连接均失败");
           }
         }
       } else {
@@ -242,10 +244,10 @@ async function 启动传输管道(WS接口) {
             });
             await TCP接口.opened;
           } catch {
-            console.error("连接失败");
+            console.error("连接均失败");
           }
         } else {
-          console.error("连接失败");
+          console.error("仅直连但失败");
         }
       }
     }
