@@ -40,13 +40,11 @@ export default {
     const 路径配置 = {
       威图锐: `/${encodeURIComponent(订阅路径)}/${威图锐}`,
       科拉什: `/${encodeURIComponent(订阅路径)}/${科拉什}`,
-      反代前缀: `/${encodeURIComponent(订阅路径)}/`,
     };
 
     const 是正确路径 = url.pathname === 路径配置.威图锐 ||
                       url.pathname === 路径配置.科拉什 ||
-                      url.pathname === `/${encodeURIComponent(订阅路径)}` ||
-                      url.pathname.startsWith(路径配置.反代前缀);
+                      url.pathname === `/${encodeURIComponent(订阅路径)}`
 
     if (!WS请求 && !是正确路径) {
       if (伪装网页) {
@@ -102,28 +100,6 @@ export default {
         优选列表 = await 获取优选列表();
         const 生成配置 = 配置生成器[工具 || "tips"];
         return 生成配置(访问请求.headers.get("Host"));
-      }
-    }
-
-    // 反代 无法访问CF CDN
-    if (url.pathname.startsWith(路径配置.反代前缀) && url.pathname !== 路径配置.威图锐 && url.pathname !== 路径配置.科拉什) {
-      let target = decodeURIComponent(url.pathname.slice(反代前缀.length));
-      // 处理未填写协议的情况，默认使用https://
-      if (!target.startsWith('https://')) {
-        target = 'https://' + target;
-      }
-
-      try {
-          const 请求对象 = new Request(target + url.search, {
-            method: 访问请求.method,
-            headers: 访问请求.headers,
-            body: 访问请求.body,
-          });
-          const 响应对象 = await fetch(请求对象);
-          return 响应对象;
-      } catch {
-        console.error(`[反代请求失败] 目标: ${target}`);
-        return new Response(null, { status: 404 });
       }
     }
 
