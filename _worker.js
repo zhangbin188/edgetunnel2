@@ -40,6 +40,7 @@ export default {
     const 路径配置 = {
       威图锐: `/${encodeURIComponent(订阅路径)}/${威图锐}`,
       科拉什: `/${encodeURIComponent(订阅路径)}/${科拉什}`,
+      通用订阅: `/${encodeURIComponent(订阅路径)}`,
     };
 
     const 是正确路径 = url.pathname === 路径配置.威图锐 ||
@@ -89,7 +90,7 @@ export default {
       else if (url.pathname === 路径配置.科拉什) {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
-      else if (url.pathname === `/${encodeURIComponent(订阅路径)}` || url.pathname === `/${encodeURIComponent(订阅路径)}/`) {
+      else if (url.pathname === 路径配置.通用订阅) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
         const 配置生成器 = {
           [威图锐]: 威图锐配置文件,
