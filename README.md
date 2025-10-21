@@ -1,6 +1,6 @@
 # Edge Tunnel
 
-Edge Tunnel 是一个基于 Cloudflare c 的免费代理解决方案, 配置精简, 适合新手快速上手
+Edge Tunnel 是一个基于 Cloudflare Workers/Pages 的免费代理解决方案, 配置精简, 适合新手快速上手
 
 ## 项目特点
 
