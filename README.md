@@ -1,10 +1,10 @@
 # Edge Tunnel
 
-Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置精简, 适合新手快速上手
+Edge Tunnel 是一个基于 Cloudflare c 的免费代理解决方案, 配置精简, 适合新手快速上手
 
 ## 项目特点
 
-- **免费**：利用 Cloudflare Pages 免费托管
+- **免费**：利用 Cloudflare Workers/Pages 免费托管
 - **易用**：通过环境变量灵活配置
 - **兼容性强**：支持 v2ray 和 clash 客户端
 
@@ -17,9 +17,13 @@ Edge Tunnel 是一个基于 Cloudflare Pages 的免费代理解决方案, 配置
 ## 使用方法
 
 1. **Fork 本项目**
-2. **创建 Cloudflare Pages**
+2. **创建 Cloudflare Workers/Pages**
 - **导入您 Fork 的仓库**
 - **添加环境变量**
+
+> Workers在**添加环境变量**这一步需要更改**部署命令**, 参考命令: 
+`npx wrangler deploy ./_worker.js --compatibility-date 2025-10-01`
+
 - **保存并部署**
 3. **导入订阅(域名/订阅路径/clash或v2ray)并开始使用**
 
@@ -54,5 +58,5 @@ CFTest 是用于检测 Cloudflare IP 地址的工具，可帮助用户快速筛�
 
 ## 提醒
 
-- CloudFlare 明文禁止优选IP和使用CF Pages部署代理, 封号风险自己承担
+- CloudFlare 明文禁止优选IP和使用CF Workers/Pages部署代理, 封号风险自己承担
 - 建议定期同步上游仓库以获取最新功能和修复
