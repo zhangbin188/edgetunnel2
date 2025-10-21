@@ -17,15 +17,12 @@ Edge Tunnel 是一个基于 Cloudflare Workers/Pages 的免费代理解决方案
 ## 使用方法
 
 1. **Fork 本项目**
-2. **创建 Cloudflare Workers/Pages**
+2. **Worker参考`wrangler.toml`修改**
+3. **创建 Cloudflare Workers/Pages**
 - **导入您 Fork 的仓库**
 - **添加环境变量**
-
-> Workers在**添加环境变量**这一步需要更改**部署命令**, 参考命令: 
-`npx wrangler deploy ./_worker.js --compatibility-date 2025-10-01`
-
 - **保存并部署**
-3. **导入订阅(域名/订阅路径/clash或v2ray)并开始使用**
+4. **导入订阅(域名/订阅路径/clash或v2ray)并开始使用**
 
 ## 环境变量说明
 
