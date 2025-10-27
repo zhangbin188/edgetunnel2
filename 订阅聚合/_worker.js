@@ -109,7 +109,7 @@ async function 获取聚合节点信息() {
   
   if (订阅链接列表.length === 0) {
     return [{
-      hostName: "127.0.0.1",
+      地址: "127.0.0.1",
       uuid: "00000000-0000-4000-8000-000000000000",
       节点名字: "没有可用节点"
     }];
@@ -131,10 +131,10 @@ async function 获取聚合节点信息() {
           .filter(line => line && line.includes('#'));
         
         节点信息行.forEach((行, 索引) => {
-          const [hostName, uuid] = 行.split('#');
-          if (hostName && uuid) {
+          const [地址, uuid] = 行.split('#');
+          if (地址 && uuid) {
             所有节点信息.push({
-              hostName: hostName.trim(),
+              地址: 地址.trim(),
               uuid: uuid.trim(),
               节点名字: `节点-${所有节点信息.length + 1}`
             });
@@ -149,16 +149,28 @@ async function 获取聚合节点信息() {
   // 如果没有获取到任何节点信息，返回默认节点
   if (所有节点信息.length === 0) {
     return [{
-      hostName: "127.0.0.1",
+      地址: "127.0.0.1",
       uuid: "00000000-0000-4000-8000-000000000000",
       节点名字: "没有可用节点"
     }];
   }
 
-  return 所有节点信息;
+  // 基于地址去重，保留第一个出现的节点
+  const 已见主机名 = new Set();
+  const 去重节点信息 = [];
+  
+  所有节点信息.forEach((节点, 索引) => {
+    if (!已见主机名.has(节点.地址)) {
+      已见主机名.add(节点.地址);
+      // 重新编号节点名字
+      节点.节点名字 = `节点-${去重节点信息.length + 1}`;
+      去重节点信息.push(节点);
+    }
+  });
+
+  return 去重节点信息;
 }
 
-// 提示界面
 async function 提示界面() {
   const 提示界面 = `
 <title>订阅-${订阅路径}</title>
@@ -177,11 +189,10 @@ async function 提示界面() {
   });
 }
 
-// V2Ray配置文件生成
 function 威图锐配置文件(节点信息列表) {
   const 配置内容 = 节点信息列表
-    .map(({ hostName, uuid, 节点名字 }) => {
-      return `${维列斯}://${uuid}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}#${节点名字}`;
+    .map(({ 地址, uuid, 节点名字 }) => {
+      return `${维列斯}://${uuid}@${地址}:443?encryption=none&security=tls&sni=${地址}&fp=chrome&type=ws&host=${地址}#${节点名字}`;
     })
     .join("\n");
 
@@ -191,23 +202,22 @@ function 威图锐配置文件(节点信息列表) {
   });
 }
 
-// Clash配置文件生成
 function 科拉什配置文件(节点信息列表) {
   const 生成节点 = (节点信息列表) => {
-    return 节点信息列表.map(({ hostName, uuid, 节点名字 }) => {
+    return 节点信息列表.map(({ 地址, uuid, 节点名字 }) => {
       return {
         nodeConfig: `- name: ${节点名字}
   type: ${维列斯}
-  server: ${hostName}
+  server: ${地址}
   port: 443
   uuid: ${uuid}
   udp: true
   tls: true
-  sni: ${hostName}
+  sni: ${地址}
   network: ws
   ws-opts:
     headers:
-      Host: ${hostName}
+      Host: ${地址}
       User-Agent: Chrome`,
         proxyConfig: `    - ${节点名字}`,
       };
