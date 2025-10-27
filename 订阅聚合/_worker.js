@@ -31,7 +31,8 @@ export default {
             return `https://${url}`;
           }
           return url;
-        });
+        })
+        .filter((url, index, array) => array.indexOf(url) === index); // URL去重
     }
 
     const url = new URL(访问请求.url);
