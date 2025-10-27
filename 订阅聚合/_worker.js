@@ -141,8 +141,8 @@ async function 获取聚合节点信息() {
           }
         });
       }
-    } catch (error) {
-      console.error(`获取订阅失败: ${订阅链接}`, error);
+    } catch {
+      console.error(`获取订阅失败: ${订阅链接}`);
     }
   }
 
