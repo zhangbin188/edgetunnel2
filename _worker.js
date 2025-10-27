@@ -40,11 +40,13 @@ export default {
     const 路径配置 = {
       威图锐: `/${encodeURIComponent(订阅路径)}/${威图锐}`,
       科拉什: `/${encodeURIComponent(订阅路径)}/${科拉什}`,
+      订阅聚合: `/${encodeURIComponent(订阅路径)}/info`,
       通用订阅: `/${encodeURIComponent(订阅路径)}`,
     };
 
     const 是正确路径 = url.pathname === 路径配置.威图锐 ||
                       url.pathname === 路径配置.科拉什 ||
+                      url.pathname === 路径配置.订阅聚合 ||
                       url.pathname === `/${encodeURIComponent(订阅路径)}`
 
     if (!WS请求 && !是正确路径) {
@@ -90,11 +92,15 @@ export default {
       else if (url.pathname === 路径配置.科拉什) {
         return 科拉什配置文件(访问请求.headers.get("Host"));
       }
+      else if (url.pathname === 路径配置.订阅聚合) {
+        return 聚合信息(访问请求.headers.get("Host"));
+      }
       else if (url.pathname === 路径配置.通用订阅) {
         const 用户代理 = 访问请求.headers.get("User-Agent").toLowerCase();
         const 配置生成器 = {
           [威图锐]: 威图锐配置文件,
           [科拉什]: 科拉什配置文件,
+          info: 聚合信息,
           tips: 提示界面,
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
@@ -452,6 +458,13 @@ rules:
 `;
 
   return new Response(配置内容, {
+    status: 200,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+  });
+}
+
+function 聚合信息(hostName) {
+  return new Response(`${hostName}#${验证UUID}`, {
     status: 200,
     headers: { "Content-Type": "text/plain;charset=utf-8" },
   });
