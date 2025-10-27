@@ -1,6 +1,0 @@
-name = "worker"
-main = "_worker.js"
-compatibility_date = "2025-10-01"
-
-[vars]
-SUB_PATH = "free"
