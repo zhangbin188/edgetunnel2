@@ -10,17 +10,14 @@ let NAT64前缀 = "2a02:898:146:64::";
 let DOH地址 = "1.1.1.1";
 let 反代IP = "proxyip.cmliussss.net";
 
-let 威图锐拆分_1 = "v2";
-let 威图锐拆分_2 = "ray";
-let 威图锐 = 威图锐拆分_1 + 威图锐拆分_2;
+// 关键词拆分(防检测)
+const 威图锐拆分 = ["v2", "ray"];
+const 科拉什拆分 = ["cla", "sh"];
+const 维列斯拆分 = ["vl", "ess"];
 
-let 科拉什拆分_1 = "cla";
-let 科拉什拆分_2 = "sh";
-let 科拉什 = 科拉什拆分_1 + 科拉什拆分_2;
-
-let 维列斯拆分_1 = "vl";
-let 维列斯拆分_2 = "ess";
-let 维列斯 = 维列斯拆分_1 + 维列斯拆分_2;
+const 威图锐 = 威图锐拆分.join("");
+const 科拉什 = 科拉什拆分.join("");
+const 维列斯 = 维列斯拆分.join("");
 
 // 网页入口
 export default {
