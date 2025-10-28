@@ -49,7 +49,7 @@ export default {
     if (!WS请求 && !是正确路径) {
       if (伪装网页) {
         try {
-          const targetBase = 伪装网页.startsWith('https://')
+          const targetBase = 伪装网页.startsWith('http://') || 伪装网页.startsWith('https://')
             ? 伪装网页
             : `https://${伪装网页}`;
 
