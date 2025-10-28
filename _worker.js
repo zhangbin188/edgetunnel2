@@ -100,7 +100,6 @@ export default {
         const 配置生成器 = {
           [威图锐]: 威图锐配置文件,
           [科拉什]: 科拉什配置文件,
-          info: 聚合信息,
           tips: 提示界面,
         };
         const 工具 = Object.keys(配置生成器).find((工具) => 用户代理.includes(工具));
