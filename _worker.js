@@ -75,11 +75,7 @@ export default {
     }
 
     if (!WS请求) {
-      if (!优选列表 &&
-          (url.pathname === 路径配置.威图锐 ||
-           url.pathname === 路径配置.科拉什 ||
-           url.pathname === `/${encodeURIComponent(订阅路径)}`)
-         ) {
+      if (是正确路径) {
         优选列表 = await 获取优选列表();
       }
 
