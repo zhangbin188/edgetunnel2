@@ -66,7 +66,7 @@ export default {
           const 响应对象 = await fetch(请求对象);
           return 响应对象;
         } catch {
-          console.error(`[伪装网页请求失败] 目标: ${伪装网页}, 路径: ${url.pathname}`);
+          console.error(`[伪装网页请求失败] 目标: ${伪装网页}`);
           return new Response(null, { status: 404 });
         }
       } else {
