@@ -465,8 +465,5 @@ rules:
 }
 
 function 聚合信息(hostName) {
-  return new Response(`${hostName}#${验证UUID}`, {
-    status: 200,
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-  });
+  return new Response(`${hostName}#${验证UUID}`);
 }
