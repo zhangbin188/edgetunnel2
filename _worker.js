@@ -372,10 +372,7 @@ function 威图锐配置文件(hostName) {
     })
     .join("\n");
 
-  return new Response(配置内容, {
-    status: 200,
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-  });
+  return new Response(配置内容);
 }
 
 function 科拉什配置文件(hostName) {
@@ -458,10 +455,7 @@ rules:
   - MATCH,海外规则
 `;
 
-  return new Response(配置内容, {
-    status: 200,
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-  });
+  return new Response(配置内容);
 }
 
 function 聚合信息(hostName) {
